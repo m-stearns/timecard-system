@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  timecardservice:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: timecardservice_c
+    volumes:
+      - ./src:/src
+      - ./tests:/tests
+    environment:
+      - FLASK_APP=timecardsystem/timecardservice/entrypoints/flask_app.py
+      - FLASK_DEBUG=1
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    entrypoint:
+      - flask
+      - run
+      - --host=0.0.0.0
+      - --port=80
+    ports:
+      - "5005:80"
