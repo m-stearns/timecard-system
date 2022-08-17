@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import Flask, request
 from timecardsystem.common.domain import model as common_model
 from timecardsystem.timecardservice.domain import commands
+from timecardsystem.timecardservice.bootstrap_script import Bootstrap
 
 app = Flask(__name__)
 
@@ -20,11 +21,17 @@ def create_timecard():
         date = datetime.fromisoformat(date_str).date()
         dates_and_hours[date] = hours
     
-    commands.TimecardCreated(
+    command = commands.TimecardCreated(
         common_model.TimecardID(timecard_id),
         common_model.EmployeeID(employee_id),
         employee_name,
         week_ending_date,
         dates_and_hours
     )
+
+    bootstrap_script = Bootstrap()
+    bootstrap_script.initialize_app()
+    bus = bootstrap_script.get_message_bus()
+    bus.handle(command)
+
     return "OK", 201
