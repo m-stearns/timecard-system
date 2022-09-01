@@ -6,7 +6,8 @@ class Bootstrap:
     def __init__(
         self,
         start_persistence: bool = True,
-        unit_of_work: unit_of_work.AbstractUnitOfWork = unit_of_work.ImplementedUnitOfWork()
+        unit_of_work: unit_of_work.AbstractUnitOfWork =
+            unit_of_work.ImplementedUnitOfWork()
     ):
         self.start_persistence = start_persistence
         self.unit_of_work = unit_of_work
