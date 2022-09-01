@@ -5,6 +5,7 @@ from timecardsystem.common.domain import commands, events
 
 Message = Union[commands.Command, events.Event]
 
+
 class MessageBus:
 
     def __init__(self, unit_of_work: unit_of_work.AbstractUnitOfWork) -> None:
