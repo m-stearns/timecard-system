@@ -22,7 +22,7 @@ def create_timecard():
         date = datetime.fromisoformat(date_str).date()
         dates_and_hours[date] = hours
 
-    command = commands.TimecardCreated(
+    command = commands.CreateTimecard(
         common_model.TimecardID(timecard_id),
         common_model.EmployeeID(employee_id),
         employee_name,

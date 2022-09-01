@@ -4,7 +4,7 @@ from . import unit_of_work
 
 
 def create_timecard(
-    command: commands.TimecardCreated,
+    command: commands.CreateTimecard,
     unit_of_work: unit_of_work.AbstractUnitOfWork
 ):
     with unit_of_work:

@@ -78,7 +78,7 @@ class TestCreateTimecard:
         week_ending_date = create_week_ending_date("2022-08-26")
         dates_and_hours = create_dates_and_hours()
 
-        command = commands.TimecardCreated(
+        command = commands.CreateTimecard(
             common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013"),
             common_model.EmployeeID("c8b5734f-e4b4-47c8-a326-f79c23e696de"),
             employee_name="Fake Employee",

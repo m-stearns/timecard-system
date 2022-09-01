@@ -22,7 +22,7 @@ class Bootstrap:
             pass
 
         self.injected_command_handlers = {
-            commands.TimecardCreated:
+            commands.CreateTimecard:
             lambda c: handlers.create_timecard(c, self.unit_of_work)
         }
         self.initialized = True
