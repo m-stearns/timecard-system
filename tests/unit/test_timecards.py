@@ -8,6 +8,10 @@ today = datetime.today()
 def test_validate_total_hours_for_timecard_valid_hours():
     timecard = model.Timecard(
         common_model.TimecardID("2437bf34-ef8a-4af2-8bd0-609d09cb4e5c"),
+        model.Employee(
+            common_model.EmployeeID("2142eb3a-2435-4ae0-a98b-7060c574f257"),
+            "Test Employee"
+        ),
         today,
         {
             datetime(2022, 8, 8): [8.0, 0.0, 0.0, 0.0],
@@ -22,6 +26,10 @@ def test_validate_total_hours_for_timecard_valid_hours():
 def test_validate_total_hours_for_timecard_invalid_hours():
     timecard = model.Timecard(
         common_model.TimecardID("2437bf34-ef8a-4af2-8bd0-609d09cb4e5c"),
+        model.Employee(
+            common_model.EmployeeID("2142eb3a-2435-4ae0-a98b-7060c574f257"),
+            "Test Employee"
+        ),
         today,
         {
             datetime(2022, 8, 8): [8.0, 0.0, 0.0, 0.0],
@@ -36,6 +44,10 @@ def test_validate_total_hours_for_timecard_invalid_hours():
 def test_validate_number_of_days_entered_valid():
     timecard = model.Timecard(
         common_model.TimecardID("2437bf34-ef8a-4af2-8bd0-609d09cb4e5c"),
+        model.Employee(
+            common_model.EmployeeID("2142eb3a-2435-4ae0-a98b-7060c574f257"),
+            "Test Employee"
+        ),
         today,
         {
             datetime(2022, 8, 8): [8.0, 0.0, 0.0, 0.0],
@@ -50,6 +62,10 @@ def test_validate_number_of_days_entered_valid():
 def test_validate_number_of_days_entered_invalid():
     timecard = model.Timecard(
         common_model.TimecardID("2437bf34-ef8a-4af2-8bd0-609d09cb4e5c"),
+        model.Employee(
+            common_model.EmployeeID("2142eb3a-2435-4ae0-a98b-7060c574f257"),
+            "Test Employee"
+        ),
         today,
         {
             datetime(2022, 8, 8): [8.0, 0.0, 0.0, 0.0],
