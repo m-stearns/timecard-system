@@ -34,7 +34,9 @@ class Timecard(common_model.AggregateRoot):
         self.employee = employee
         self.week_ending_date = week_ending_date
         self.dates_and_hours = dates_and_hours
-        self.total_hours: int = sum([sum(hours) for hours in self.dates_and_hours.values()])
+        self.total_hours: int = sum(
+            [sum(hours)for hours in self.dates_and_hours.values()]
+        )
         self.number_of_days_entered: int = len(dates_and_hours)
         self.submitted: bool = False
         self.version = version
