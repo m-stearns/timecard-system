@@ -2,20 +2,25 @@ import uuid
 from dataclasses import dataclass
 from typing import TypeVar
 
+
 @dataclass(frozen=True)
 class TimecardID:
     value: uuid.UUID
+
 
 @dataclass(frozen=True)
 class EmployeeID:
     value: uuid.UUID
 
+
 @dataclass(frozen=True)
 class EmployeeName:
     name: str
 
+
 # Entities
 ID = TypeVar("ID")
+
 
 class BaseEntity:
 
@@ -37,6 +42,7 @@ class BaseEntity:
 
     def __hash__(self) -> int:
         return hash(self.id)
+
 
 class AggregateRoot(BaseEntity):
 
