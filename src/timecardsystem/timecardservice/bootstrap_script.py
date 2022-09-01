@@ -27,4 +27,3 @@ class Bootstrap:
             )
         else:
             raise Exception
-
