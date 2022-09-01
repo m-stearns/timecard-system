@@ -18,7 +18,6 @@ class Bootstrap:
             # start persistence mechanism here
             pass
 
-        dependencies = {"unit_of_work": self.unit_of_work}
         self.initialized = True
 
     def get_message_bus(self):
