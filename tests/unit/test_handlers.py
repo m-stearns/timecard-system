@@ -81,7 +81,6 @@ class TestCreateTimecard:
         command = commands.CreateTimecard(
             common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013"),
             common_model.EmployeeID("c8b5734f-e4b4-47c8-a326-f79c23e696de"),
-            employee_name="Fake Employee",
             week_ending_date=week_ending_date,
             dates_and_hours=dates_and_hours
 
@@ -90,7 +89,7 @@ class TestCreateTimecard:
         timecard = message_bus.unit_of_work.timecards.get(
             common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013")
         )
-        assert timecard
-        assert timecard.employee.id.value == "c8b5734f-e4b4-47c8-a326-f79c23e696de"
-        assert timecard.employee.name == "Fake Employee"
+        assert timecard.id.value == "c5def653-5315-4a4d-b9dc-78beae7e3013"
+        assert timecard.employee_id.value == "c8b5734f-e4b4-47c8-a326-f79c23e696de"
         assert timecard.week_ending_date == week_ending_date
+        assert timecard.dates_and_hours == dates_and_hours

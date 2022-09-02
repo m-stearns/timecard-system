@@ -8,7 +8,7 @@ MAX_DAYS_IN_TIMECARD = 7
 MINIMUM_HOURS = 40
 
 
-class Employee(common_model.BaseEntity):
+class Employee(common_model.AggregateRoot):
 
     def __init__(
         self,
@@ -25,13 +25,13 @@ class Timecard(common_model.AggregateRoot):
     def __init__(
         self,
         timecard_id: common_model.TimecardID,
-        employee: Employee,
+        employee_id: common_model.EmployeeID,
         week_ending_date: datetime,
         dates_and_hours: Dict[datetime, List[int]],
         version: int = 0
     ):
         super().__init__(timecard_id)
-        self.employee = employee
+        self.employee_id = employee_id
         self.week_ending_date = week_ending_date
         self.dates_and_hours = dates_and_hours
         self.total_hours: int = sum(
