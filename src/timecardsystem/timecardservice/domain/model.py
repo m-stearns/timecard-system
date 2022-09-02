@@ -33,7 +33,7 @@ class Timecard(common_model.AggregateRoot):
         super().__init__(timecard_id)
         self.employee_id = employee_id
         self.week_ending_date = week_ending_date
-        self.dates_and_hours = dates_and_hours
+        self._dates_and_hours = dates_and_hours
         self.total_hours: int = sum(
             [sum(hours)for hours in self.dates_and_hours.values()]
         )
@@ -52,3 +52,11 @@ class Timecard(common_model.AggregateRoot):
 
     def _validate_number_of_days_entered(self):
         return self.number_of_days_entered <= MAX_DAYS_IN_TIMECARD
+
+    @property
+    def dates_and_hours(self) -> Dict[str, List[int]]:
+        return self._dates_and_hours
+
+    @dates_and_hours.setter
+    def dates_and_hours(self, new_dates_and_hours: Dict[str, List[int]]):
+        self._dates_and_hours = new_dates_and_hours

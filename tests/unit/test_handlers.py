@@ -93,3 +93,39 @@ class TestCreateTimecard:
         assert timecard.employee_id.value == "c8b5734f-e4b4-47c8-a326-f79c23e696de"
         assert timecard.week_ending_date == week_ending_date
         assert timecard.dates_and_hours == dates_and_hours
+
+    def test_existing_timecard(self):
+        bootstrap = create_test_bootstrap()
+        message_bus = bootstrap.get_message_bus()
+
+        week_ending_date = create_week_ending_date("2022-08-26")
+        dates_and_hours = create_dates_and_hours()
+
+        command_1 = commands.CreateTimecard(
+            common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013"),
+            common_model.EmployeeID("c8b5734f-e4b4-47c8-a326-f79c23e696de"),
+            week_ending_date=week_ending_date,
+            dates_and_hours=dates_and_hours
+
+        )
+        message_bus.handle(command_1)
+
+        changed_dates_and_hours = {
+            "2022-08-08": [8.0, 0.0, 0.0, 0.0],
+            "2022-08-09": [7.0, 1.0, 0.0, 0.0],
+            "2022-08-10": [8.0, 0.0, 0.0, 0.0],
+            "2022-08-11": [8.0, 0.0, 0.0, 0.0],
+            "2022-08-12": [4.0, 4.0, 0.0, 0.0]
+        }
+        command_2 = commands.CreateTimecard(
+            common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013"),
+            common_model.EmployeeID("c8b5734f-e4b4-47c8-a326-f79c23e696de"),
+            week_ending_date=week_ending_date,
+            dates_and_hours=changed_dates_and_hours
+        )
+        message_bus.handle(command_2)
+
+        timecard = message_bus.unit_of_work.timecards.get(
+            common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013")
+        )
+        assert timecard.dates_and_hours == changed_dates_and_hours

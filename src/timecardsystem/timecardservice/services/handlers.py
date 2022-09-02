@@ -8,11 +8,15 @@ def create_timecard(
     unit_of_work: unit_of_work.AbstractUnitOfWork
 ):
     with unit_of_work:
-        new_timecard = model.Timecard(
-            command.id,
-            employee_id=command.employee_id,
-            week_ending_date=command.week_ending_date,
-            dates_and_hours=command.dates_and_hours
-        )
-        unit_of_work.timecards.add(new_timecard)
+        timecard = unit_of_work.timecards.get(command.timecard_id)
+        if timecard:
+            timecard.dates_and_hours = command.dates_and_hours
+        else:
+            timecard = model.Timecard(
+                command.timecard_id,
+                employee_id=command.employee_id,
+                week_ending_date=command.week_ending_date,
+                dates_and_hours=command.dates_and_hours
+            )
+        unit_of_work.timecards.add(timecard)
         unit_of_work.commit()
