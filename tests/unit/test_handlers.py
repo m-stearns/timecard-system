@@ -39,6 +39,7 @@ class FakeTimecardRepository(repositories.AbstractTimecardRepository):
                 return timecard
         return None
 
+
 class FakeUnitOfWork(unit_of_work.AbstractUnitOfWork):
 
     def __init__(self) -> None:
@@ -52,6 +53,7 @@ class FakeUnitOfWork(unit_of_work.AbstractUnitOfWork):
     def rollback(self):
         pass
 
+
 def create_test_bootstrap():
     bootstrap = Bootstrap(
         start_persistence=False,
@@ -60,12 +62,13 @@ def create_test_bootstrap():
     bootstrap.initialize_app()
     return bootstrap
 
+
 class TestCreateTimecard:
     def test_create_timecard(self):
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
-        week_ending_date = common.create_date_from_iso("2022-08-26")
+        week_ending_date = common.create_datetime_from_iso("2022-08-26")
         dates_and_hours = common.create_dates_and_hours()
 
         command = commands.CreateTimecard(
@@ -80,7 +83,8 @@ class TestCreateTimecard:
             common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013")
         )
         assert timecard.id.value == "c5def653-5315-4a4d-b9dc-78beae7e3013"
-        assert timecard.employee_id.value == "c8b5734f-e4b4-47c8-a326-f79c23e696de"
+        assert timecard.employee_id.value == \
+            "c8b5734f-e4b4-47c8-a326-f79c23e696de"
         assert timecard.week_ending_date == week_ending_date
         assert timecard.dates_and_hours == dates_and_hours
 
@@ -88,7 +92,7 @@ class TestCreateTimecard:
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
-        week_ending_date = common.create_date_from_iso("2022-08-26")
+        week_ending_date = common.create_datetime_from_iso("2022-08-26")
         dates_and_hours = common.create_dates_and_hours()
 
         command_1 = commands.CreateTimecard(
@@ -101,27 +105,27 @@ class TestCreateTimecard:
         message_bus.handle(command_1)
 
         changed_dates_and_hours = {
-            common.create_date_from_iso("2022-08-08"): model.WorkDayHours(
+            common.create_datetime_from_iso("2022-08-08"): model.WorkDayHours(
                 work_hours=Decimal("7.0"),
                 sick_hours=Decimal("1.0"),
                 vacation_hours=Decimal("0.0")
             ),
-            common.create_date_from_iso("2022-08-10"): model.WorkDayHours(
+            common.create_datetime_from_iso("2022-08-10"): model.WorkDayHours(
                 work_hours=Decimal("8.0"),
                 sick_hours=Decimal("0.0"),
                 vacation_hours=Decimal("0.0")
             ),
-            common.create_date_from_iso("2022-08-11"): model.WorkDayHours(
+            common.create_datetime_from_iso("2022-08-11"): model.WorkDayHours(
                 work_hours=Decimal("0.0"),
                 sick_hours=Decimal("0.0"),
                 vacation_hours=Decimal("8.0")
             ),
-            common.create_date_from_iso("2022-08-12"): model.WorkDayHours(
+            common.create_datetime_from_iso("2022-08-12"): model.WorkDayHours(
                 work_hours=Decimal("8.0"),
                 sick_hours=Decimal("0.0"),
                 vacation_hours=Decimal("0.0")
             ),
-            common.create_date_from_iso("2022-08-13"): model.WorkDayHours(
+            common.create_datetime_from_iso("2022-08-13"): model.WorkDayHours(
                 work_hours=Decimal("4.0"),
                 sick_hours=Decimal("4.0"),
                 vacation_hours=Decimal("0.0")
