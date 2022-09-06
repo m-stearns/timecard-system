@@ -81,35 +81,41 @@ class MongoDBTimecardRepository(AbstractTimecardRepository):
             create_dates_and_hours_dto(timecard.dates_and_hours)
 
         timecard_dto = {
-            "timecard_id": timecard.id.value,
+            "_id": timecard.id.value,
             "employee_id": timecard.employee_id.value,
             "week_ending_date": timecard.week_ending_date,
             "dates_and_hours": dates_and_hours_dto,
             "submitted": timecard.submitted
         }
-        self.timecards_collection.insert_one(timecard_dto)
+        self.timecards_collection.replace_one(
+            filter={"_id": timecard.id.value},
+            replacement=timecard_dto,
+            upsert=True
+        )
 
     def _get(self, timecard_id: common_model.TimecardID) -> model.Timecard:
         timecard_dto = \
             self.timecards_collection.find_one(
-                {"timecard_id": timecard_id.value}
+                {"_id": timecard_id.value}
             )
+        if timecard_dto:
+            dates_and_hours = {}
+            for date, hours in timecard_dto["dates_and_hours"].items():
+                date_obj = datetime.fromisoformat(date)
+                work_day_hours = model.WorkDayHours(
+                    work_hours=Decimal(hours[0]),
+                    sick_hours=Decimal(hours[1]),
+                    vacation_hours=Decimal(hours[2]),
+                )
+                dates_and_hours[date_obj] = work_day_hours
 
-        dates_and_hours = {}
-        for date, hours in timecard_dto["dates_and_hours"].items():
-            date_obj = datetime.fromisoformat(date)
-            work_day_hours = model.WorkDayHours(
-                work_hours=Decimal(hours[0]),
-                sick_hours=Decimal(hours[1]),
-                vacation_hours=Decimal(hours[2]),
+            timecard = model.Timecard(
+                common_model.TimecardID(timecard_dto["_id"]),
+                common_model.EmployeeID(timecard_dto["employee_id"]),
+                timecard_dto["week_ending_date"],
+                dates_and_hours,
+                timecard_dto["submitted"]
             )
-            dates_and_hours[date_obj] = work_day_hours
-
-        timecard = model.Timecard(
-            common_model.TimecardID(timecard_dto["timecard_id"]),
-            common_model.EmployeeID(timecard_dto["employee_id"]),
-            timecard_dto["week_ending_date"],
-            dates_and_hours,
-            timecard_dto["submitted"]
-        )
-        return timecard
+            return timecard
+        else:
+            return None

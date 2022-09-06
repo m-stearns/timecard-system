@@ -1,33 +1,45 @@
 from datetime import datetime
+from decimal import Decimal
+from typing import Dict, List
 
 from flask import Flask, request
 from timecardsystem.common.domain import model as common_model
-from timecardsystem.timecardservice.domain import commands
 from timecardsystem.timecardservice.bootstrap_script import Bootstrap
+from timecardsystem.timecardservice.domain import commands, model
 
 app = Flask(__name__)
+
+
+def create_dates_and_hours(dates_and_hours: Dict[str, List[float]]):
+    dates_and_hours_dto = {}
+    for date_str, hours in dates_and_hours.items():
+        date_obj = datetime.fromisoformat(date_str)
+        work_day_hours = model.WorkDayHours(
+            work_hours=Decimal(str(hours[0])),
+            sick_hours=Decimal(str(hours[1])),
+            vacation_hours=Decimal(str(hours[2])),
+        )
+        dates_and_hours_dto[date_obj] = work_day_hours
+
+    return dates_and_hours_dto
 
 
 @app.route("/timecards", methods=["GET", "POST"])
 def create_timecard():
     timecard_id = request.json["timecard_id"]
     employee_id = request.json["employee_id"]
-    employee_name = request.json["name"]
     week_ending_date = request.json["week_ending_date"]
-    week_ending_date = datetime.fromisoformat(week_ending_date).date()
+    week_ending_date = datetime.fromisoformat(week_ending_date)
 
-    dates_and_hours_dto = request.json["dates_and_hours"]
-    dates_and_hours = {}
-    for date_str, hours in dates_and_hours_dto.items():
-        date = datetime.fromisoformat(date_str).date()
-        dates_and_hours[date] = hours
+    dates_and_hours_dto = create_dates_and_hours(
+        request.json["dates_and_hours"]
+    )
 
     command = commands.CreateTimecard(
         common_model.TimecardID(timecard_id),
         common_model.EmployeeID(employee_id),
-        employee_name,
         week_ending_date,
-        dates_and_hours
+        dates_and_hours_dto
     )
 
     bootstrap_script = Bootstrap()

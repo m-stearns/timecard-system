@@ -56,7 +56,6 @@ class FakeUnitOfWork(unit_of_work.AbstractUnitOfWork):
 
 def create_test_bootstrap():
     bootstrap = Bootstrap(
-        start_persistence=False,
         unit_of_work=FakeUnitOfWork()
     )
     bootstrap.initialize_app()
