@@ -8,6 +8,7 @@ from timecardsystem.timecardservice.domain import model
 def create_datetime_from_iso(date_ISO_format: str) -> datetime:
     return datetime.fromisoformat(date_ISO_format)
 
+
 def create_dates_and_hours() -> Dict[datetime, model.WorkDayHours]:
     return {
         create_datetime_from_iso("2022-08-08"): model.WorkDayHours(
