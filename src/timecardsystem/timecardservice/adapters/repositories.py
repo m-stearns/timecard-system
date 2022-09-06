@@ -1,10 +1,38 @@
 import abc
+from datetime import datetime
+from typing import Dict
+from decimal import Decimal
 
+import pymongo
 from timecardsystem.common.domain import model as common_model
 from timecardsystem.timecardservice.domain import model
 
 
-class AbstractTimecardRepository(abc.ABC):
+def create_dates_and_hours_dto(
+    dates_and_hours: Dict[datetime, model.WorkDayHours]
+):
+    dates_and_hours_dto = {}
+    for date, hours in dates_and_hours.items():
+        dates_and_hours_dto[date.isoformat()] = [
+            str(hours.work_hours),
+            str(hours.sick_hours),
+            str(hours.vacation_hours)
+        ]
+    return dates_and_hours_dto
+
+
+class AbstractRepository(abc.ABC):
+
+    @abc.abstractmethod
+    def add(self, obj):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get(self, obj_id):
+        raise NotImplementedError
+
+
+class AbstractTimecardRepository(AbstractRepository):
 
     def add(self, timecard: model.Timecard):
         self._add(timecard)
@@ -22,7 +50,7 @@ class AbstractTimecardRepository(abc.ABC):
         raise NotImplementedError
 
 
-class AbstractEmployeeRepository(abc.ABC):
+class AbstractEmployeeRepository(AbstractRepository):
 
     def add(self, employee: model.Employee):
         self._add(employee)
@@ -38,3 +66,50 @@ class AbstractEmployeeRepository(abc.ABC):
     @abc.abstractmethod
     def _get(self, employee_id: common_model.EmployeeID):
         raise NotImplementedError
+
+
+class MongoDBTimecardRepository(AbstractTimecardRepository):
+
+    def __init__(
+        self,
+        timecards_collection: pymongo.collection.Collection
+    ) -> None:
+        self.timecards_collection = timecards_collection
+
+    def _add(self, timecard: model.Timecard):
+        dates_and_hours_dto = \
+            create_dates_and_hours_dto(timecard.dates_and_hours)
+
+        timecard_dto = {
+            "timecard_id": timecard.id.value,
+            "employee_id": timecard.employee_id.value,
+            "week_ending_date": timecard.week_ending_date,
+            "dates_and_hours": dates_and_hours_dto,
+            "submitted": timecard.submitted
+        }
+        self.timecards_collection.insert_one(timecard_dto)
+
+    def _get(self, timecard_id: common_model.TimecardID) -> model.Timecard:
+        timecard_dto = \
+            self.timecards_collection.find_one(
+                {"timecard_id": timecard_id.value}
+            )
+
+        dates_and_hours = {}
+        for date, hours in timecard_dto["dates_and_hours"].items():
+            date_obj = datetime.fromisoformat(date)
+            work_day_hours = model.WorkDayHours(
+                work_hours=Decimal(hours[0]),
+                sick_hours=Decimal(hours[1]),
+                vacation_hours=Decimal(hours[2]),
+            )
+            dates_and_hours[date_obj] = work_day_hours
+
+        timecard = model.Timecard(
+            common_model.TimecardID(timecard_dto["timecard_id"]),
+            common_model.EmployeeID(timecard_dto["employee_id"]),
+            timecard_dto["week_ending_date"],
+            dates_and_hours,
+            timecard_dto["submitted"]
+        )
+        return timecard
