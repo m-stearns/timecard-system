@@ -2,12 +2,8 @@ import pymongo
 from collections import OrderedDict
 
 DATABASE_NAME = "timecard-service"
-COLLECTION_NAME = "Timecards"
+COLLECTION_NAME = "timecards"
 TIMECARD_SCHEMA = {
-    "timecard_id": {
-        "type": "string",
-        "required": True
-    },
     "employee_id": {
         "type": "string",
         "required": True
@@ -54,7 +50,10 @@ def startup_timecards_collection(database: pymongo.database.Database):
     # create schema
     validator = create_timecards_validator()
 
-    database.create_collection(COLLECTION_NAME)
+    try:
+        database.create_collection(COLLECTION_NAME)
+    except pymongo.errors.CollectionInvalid:
+        pass
 
     # add schema validation
     query = [('collMod', COLLECTION_NAME), ('validator', validator)]
