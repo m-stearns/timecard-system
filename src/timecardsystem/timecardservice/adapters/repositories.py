@@ -93,8 +93,7 @@ class MongoDBTimecardRepository(AbstractTimecardRepository):
         self.timecards_collection.replace_one(
             filter={"_id": timecard.id.value},
             replacement=timecard_dto,
-            upsert=True,
-            session=self.session
+            upsert=True
         )
 
     def _get(self, timecard_id: common_model.TimecardID) -> model.Timecard:
