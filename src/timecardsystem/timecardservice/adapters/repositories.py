@@ -77,7 +77,7 @@ class MongoDBTimecardRepository(AbstractTimecardRepository):
     ) -> None:
         self.session = session
         self.database = session.client[odm.DATABASE_NAME]
-        self.timecards_collection = self.database[odm.COLLECTION_NAME]
+        self.timecards_collection = self.database[odm.TIMECARDS_COLLECTION_NAME]
 
     def _add(self, timecard: model.Timecard):
         dates_and_hours_dto = \
@@ -133,7 +133,7 @@ class MongoDBEmployeeRepository(AbstractEmployeeRepository):
         self.session = session
         self.database = session.client[odm.DATABASE_NAME]
         self.employees_collection = \
-            self.database[odm.EMPLOYEE_COLLECTION_NAME]
+            self.database[odm.EMPLOYEES_COLLECTION_NAME]
 
     def _add(self, employee: model.Employee):
         employee_dto = {

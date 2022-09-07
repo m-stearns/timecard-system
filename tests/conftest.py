@@ -20,6 +20,7 @@ def mongodb_session_factory(mongodb_database):
         client = mongodb_database.client
         return client.start_session
     odm.startup_timecards_collection(mongodb_database.client)
+    odm.startup_employees_collection(mongodb_database.client)
     yield get_session()
     client = mongodb_database.client
     client.drop_database(odm.DATABASE_NAME)

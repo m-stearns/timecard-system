@@ -1,9 +1,11 @@
+from typing import Dict
 import pymongo
 from collections import OrderedDict
 
 DATABASE_NAME = "timecard-service"
-COLLECTION_NAME = "timecards"
-EMPLOYEE_COLLECTION_NAME = "employees"
+TIMECARDS_COLLECTION_NAME = "timecards"
+EMPLOYEES_COLLECTION_NAME = "employees"
+
 TIMECARD_SCHEMA = {
     "employee_id": {
         "type": "string",
@@ -23,8 +25,15 @@ TIMECARD_SCHEMA = {
     },
 }
 
+EMPLOYEE_SCHEMA = {
+    "name": {
+        "type": "string",
+        "required": True
+    } 
+}
 
-def create_timecards_validator():
+
+def create_validator(schema: Dict[str, str]):
     validator = {
         "$jsonSchema": {
             "bsonType": "object",
@@ -33,8 +42,8 @@ def create_timecards_validator():
     }
     required = []
 
-    for field_name in TIMECARD_SCHEMA:
-        field_properties = TIMECARD_SCHEMA[field_name]
+    for field_name in schema:
+        field_properties = schema[field_name]
         data_type = {"bsonType": field_properties["type"]}
         validator["$jsonSchema"]["properties"][field_name] = data_type
 
@@ -50,15 +59,34 @@ def create_timecards_validator():
 def startup_timecards_collection(client):
     database = client[DATABASE_NAME]
     # create schema
-    validator = create_timecards_validator()
+    validator = create_validator(TIMECARD_SCHEMA)
 
     try:
-        database.create_collection(COLLECTION_NAME)
+        database.create_collection(TIMECARDS_COLLECTION_NAME)
     except pymongo.errors.CollectionInvalid:
         pass
 
     # add schema validation
-    query = [('collMod', COLLECTION_NAME), ('validator', validator)]
+    query = [('collMod', TIMECARDS_COLLECTION_NAME), ('validator', validator)]
+    command_result = database.command(OrderedDict(query))
+
+    # if our schema was rejected, fail everything
+    if not command_result.get("ok", False):
+        raise Exception
+
+
+def startup_employees_collection(client):
+    database = client[DATABASE_NAME]
+    # create schema
+    validator = create_validator(EMPLOYEE_SCHEMA)
+
+    try:
+        database.create_collection(EMPLOYEES_COLLECTION_NAME)
+    except pymongo.errors.CollectionInvalid:
+        pass
+
+    # add schema validation
+    query = [('collMod', EMPLOYEES_COLLECTION_NAME), ('validator', validator)]
     command_result = database.command(OrderedDict(query))
 
     # if our schema was rejected, fail everything

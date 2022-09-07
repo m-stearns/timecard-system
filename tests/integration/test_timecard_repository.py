@@ -61,3 +61,19 @@ def test_get_timecard_by_id(mongodb_session_factory):
     timecard_repository.add(timecard)
     timecard = timecard_repository.get(timecard_id)
     assert timecard_id == timecard.id
+
+def test_get_employee_by_id(mongodb_session_factory):
+    session = mongodb_session_factory()
+    employee_repository = \
+        repositories.MongoDBEmployeeRepository(session)
+    
+    employee_id = common_model.EmployeeID(
+        "2142eb3a-2435-4ae0-a98b-7060c574f257"
+    )
+    employee = model.Employee(
+        employee_id,
+        common_model.EmployeeName("Azure Diamond")
+    )
+    employee_repository.add(employee)
+    employee = employee_repository.get(employee_id)
+    assert employee_id == employee.id
