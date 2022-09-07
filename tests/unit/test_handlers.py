@@ -14,6 +14,7 @@ class FakeEmployeeRepository(repositories.AbstractEmployeeRepository):
 
     def __init__(self, employees):
         self._employees: Set[model.Employee] = set(employees)
+        super().__init__()
 
     def _add(self, employee: model.Employee):
         self._employees.add(employee)
@@ -29,6 +30,7 @@ class FakeTimecardRepository(repositories.AbstractTimecardRepository):
 
     def __init__(self, timecards):
         self._timecards = set(timecards)
+        super().__init__()
 
     def _add(self, timecard: model.Timecard):
         self._timecards.add(timecard)

@@ -35,11 +35,17 @@ class AbstractRepository(abc.ABC):
 
 class AbstractTimecardRepository(AbstractRepository):
 
+    def __init__(self) -> None:
+        self.seen = set()
+
     def add(self, timecard: model.Timecard):
         self._add(timecard)
+        self.seen.add(timecard)
 
     def get(self, timecard_id: common_model.TimecardID) -> model.Timecard:
         timecard = self._get(timecard_id)
+        if timecard:
+            self.seen.add(timecard)
         return timecard
 
     @abc.abstractmethod
@@ -53,11 +59,17 @@ class AbstractTimecardRepository(AbstractRepository):
 
 class AbstractEmployeeRepository(AbstractRepository):
 
+    def __init__(self) -> None:
+        self.seen = set()
+
     def add(self, employee: model.Employee):
         self._add(employee)
+        self.seen.add(employee)
 
     def get(self, employee_id: common_model.EmployeeID) -> model.Employee:
         employee = self._get(employee_id)
+        if employee:
+            self.seen.add(employee)
         return employee
 
     @abc.abstractmethod
@@ -79,6 +91,7 @@ class MongoDBTimecardRepository(AbstractTimecardRepository):
         self.database = session.client[odm.DATABASE_NAME]
         self.timecards_collection = \
             self.database[odm.TIMECARDS_COLLECTION_NAME]
+        super().__init__()
 
     def _add(self, timecard: model.Timecard):
         dates_and_hours_dto = \
@@ -135,6 +148,7 @@ class MongoDBEmployeeRepository(AbstractEmployeeRepository):
         self.database = session.client[odm.DATABASE_NAME]
         self.employees_collection = \
             self.database[odm.EMPLOYEES_COLLECTION_NAME]
+        super().__init__()
 
     def _add(self, employee: model.Employee):
         employee_dto = {

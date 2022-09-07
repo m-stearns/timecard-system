@@ -31,7 +31,9 @@ def create_timecard(
                 week_ending_date=command.week_ending_date,
                 dates_and_hours=command.dates_and_hours
             )
+        timecard.validate_timecard()
         unit_of_work.timecards.add(timecard)
+        timecard.confirm_timecard_created()
         unit_of_work.commit()
 
 

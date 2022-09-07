@@ -19,6 +19,16 @@ class AbstractUnitOfWork(abc.ABC):
     def commit(self):
         self._commit()
 
+    def collect_new_events(self):
+        if self.timecards.seen:
+            for timecard in self.timecards.seen:
+                while timecard.events:
+                    yield timecard.events.pop(0)
+        if self.employees.seen:
+            for employee in self.employees.seen:
+                while employee.events:
+                    yield employee.events.pop(0)
+
     @abc.abstractmethod
     def _commit(self):
         raise NotImplementedError
@@ -46,6 +56,9 @@ class MongoDBUnitOfWork(AbstractUnitOfWork):
             self.session_factory()
         self.session.start_transaction()
         self.timecards = repositories.MongoDBTimecardRepository(
+            self.session
+        )
+        self.employees = repositories.MongoDBEmployeeRepository(
             self.session
         )
         return super().__enter__()

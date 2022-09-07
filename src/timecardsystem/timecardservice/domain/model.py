@@ -5,6 +5,7 @@ from typing import Dict, List
 
 from timecardsystem.common.domain import events
 from timecardsystem.common.domain import model as common_model
+from timecardsystem.timecardservice.domain import events as domain_events
 
 MAX_DAYS_IN_TIMECARD = 7
 MINIMUM_HOURS_PER_WEEK = 40
@@ -22,6 +23,9 @@ class WorkDayHours:
 
     def validate_work_day(self) -> bool:
         return self.total_hours >= MINIMUM_HOURS_PER_DAY
+
+    def get_as_list_of_decimals(self) -> List[Decimal]:
+        return [self.work_hours, self.sick_hours, self.vacation_hours]
 
 
 class Employee(common_model.AggregateRoot):
@@ -56,6 +60,7 @@ class Timecard(common_model.AggregateRoot):
         ])
         self.number_of_days_entered: int = len(dates_and_hours)
         self.submitted = submitted
+        self.events: List[events.Event] = []
 
     def validate_timecard(self):
         if not self._validate_total_hours():
@@ -68,6 +73,16 @@ class Timecard(common_model.AggregateRoot):
 
     def _validate_number_of_days_entered(self):
         return self.number_of_days_entered <= MAX_DAYS_IN_TIMECARD
+
+    def confirm_timecard_created(self):
+        timecard_created_event = domain_events.TimecardCreated(
+            self.id,
+            self.employee_id,
+            self.week_ending_date,
+            {date.isoformat(): hours.get_as_list_of_decimals()
+                for date, hours in self._dates_and_hours.items()}
+        )
+        self.events.append(timecard_created_event)
 
     @property
     def dates_and_hours(self) -> Dict[datetime, WorkDayHours]:
