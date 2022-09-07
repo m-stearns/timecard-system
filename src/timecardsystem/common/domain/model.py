@@ -15,7 +15,7 @@ class EmployeeID:
 
 @dataclass(frozen=True)
 class EmployeeName:
-    name: str
+    value: str
 
 
 # Entities

@@ -168,3 +168,18 @@ class TestSubmitTimecardForProcessing:
 
         timecard = message_bus.unit_of_work.timecards.get(timecard_id)
         assert timecard.submitted is True
+
+class TestCreateEmployee:
+    
+    def test_create_employee(self):
+        bootstrap = create_test_bootstrap()
+        message_bus = bootstrap.get_message_bus()
+
+        employee_id = common_model.EmployeeID("c8b5734f-e4b4-47c8-a326-f79c23e696de")
+        command = commands.CreateEmployee(
+            employee_id,
+            common_model.EmployeeName("Azure Diamond")
+        )
+        message_bus.handle(command)
+        employee = message_bus.unit_of_work.employees.get(employee_id)
+        assert employee.id == employee_id

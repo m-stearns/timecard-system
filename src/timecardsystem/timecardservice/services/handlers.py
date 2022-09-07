@@ -3,6 +3,19 @@ from timecardsystem.timecardservice.domain import commands, model
 from . import unit_of_work
 
 
+def create_employee(
+    command: commands.CreateEmployee,
+    unit_of_work: unit_of_work.AbstractUnitOfWork
+):
+    with unit_of_work:
+        employee = model.Employee(
+            command.employee_id,
+            command.name
+        )
+        unit_of_work.employees.add(employee)
+        unit_of_work.commit()
+
+
 def create_timecard(
     command: commands.CreateTimecard,
     unit_of_work: unit_of_work.AbstractUnitOfWork

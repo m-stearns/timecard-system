@@ -122,3 +122,40 @@ class MongoDBTimecardRepository(AbstractTimecardRepository):
             return timecard
         else:
             return None
+
+
+class MongoDBEmployeeRepository(AbstractEmployeeRepository):
+
+    def __init__(
+        self,
+        session: pymongo.client_session.ClientSession
+    ) -> None:
+        self.session = session
+        self.database = session.client[odm.DATABASE_NAME]
+        self.employees_collection = \
+            self.database[odm.EMPLOYEE_COLLECTION_NAME]
+
+    def _add(self, employee: model.Employee):
+        employee_dto = {
+            "_id": employee.id.value,
+            "name": employee.name.value
+        }
+        self.employees_collection.replace_one(
+            filter={"_id": employee.id.value},
+            replacement=employee_dto,
+            upsert=True
+        )
+
+    def _get(self, employee_id: common_model.EmployeeID) -> model.Employee:
+        employee_dto = \
+            self.employees_collection.find_one(
+                {"_id": employee_id.value}
+            )
+        if employee_dto:
+            employee = model.Employee(
+                common_model.EmployeeID(employee_dto["_id"]),
+                common_model.EmployeeName(employee_dto["name"]),
+            )
+            return employee
+        else:
+            return None

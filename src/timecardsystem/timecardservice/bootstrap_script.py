@@ -16,6 +16,8 @@ class Bootstrap:
 
     def initialize_app(self):
         self.injected_command_handlers = {
+            commands.CreateEmployee:
+            lambda c: handlers.create_employee(c, self.unit_of_work),
             commands.CreateTimecard:
             lambda c: handlers.create_timecard(c, self.unit_of_work),
             commands.SubmitTimecardForProcessing:

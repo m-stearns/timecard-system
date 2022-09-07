@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 DATABASE_NAME = "timecard-service"
 COLLECTION_NAME = "timecards"
+EMPLOYEE_COLLECTION_NAME = "employees"
 TIMECARD_SCHEMA = {
     "employee_id": {
         "type": "string",
