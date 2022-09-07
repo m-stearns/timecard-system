@@ -39,6 +39,13 @@ class Employee(common_model.AggregateRoot):
         self.name = name
         self.events: List[events.Event] = []
 
+    def confirm_employee_created(self):
+        employee_created_event = domain_events.EmployeeCreated(
+            self.id,
+            self.name
+        )
+        self.events.append(employee_created_event)
+
 
 class Timecard(common_model.AggregateRoot):
 

@@ -8,6 +8,12 @@ from timecardsystem.common.domain import model as common_model
 
 
 @dataclass
+class EmployeeCreated(events.Event):
+    employee_id: common_model.EmployeeID
+    name: common_model.EmployeeName
+
+
+@dataclass
 class TimecardCreated(events.Event):
     timecard_id: common_model.TimecardID
     employee_id: common_model.EmployeeID

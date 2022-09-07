@@ -13,6 +13,7 @@ def create_employee(
             command.name
         )
         unit_of_work.employees.add(employee)
+        employee.confirm_employee_created()
         unit_of_work.commit()
 
 
