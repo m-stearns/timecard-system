@@ -12,3 +12,7 @@ class CreateTimecard(commands.Command):
     employee_id: common_model.EmployeeID
     week_ending_date: datetime
     dates_and_hours: Dict[datetime, List[int]]
+
+@dataclass
+class SubmitTimecardForProcessing(commands.Command):
+    timecard_id: common_model.TimecardID
