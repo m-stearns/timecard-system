@@ -29,7 +29,7 @@ class AbstractUnitOfWork(abc.ABC):
 
 
 def create_default_session() -> pymongo.database.Database:
-    # starts up the database connection and sets any
+    # starts up the client connection to the database
     # schema restrictions for all collections.
     client = pymongo.MongoClient(config.get_mongodb_uri())
     odm.startup_timecards_collection(client)
@@ -39,8 +39,7 @@ def create_default_session() -> pymongo.database.Database:
 class MongoDBUnitOfWork(AbstractUnitOfWork):
 
     def __init__(self, session_factory=create_default_session) -> None:
-        self.session_factory: pymongo.client_session.ClientSession = \
-            session_factory
+        self.session_factory = session_factory
 
     def __enter__(self):
         self.session: pymongo.client_session.ClientSession = \
