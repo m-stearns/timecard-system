@@ -142,3 +142,29 @@ class TestCreateTimecard:
             common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013")
         )
         assert timecard.dates_and_hours == changed_dates_and_hours
+
+
+class TestSubmitTimecardForProcessing:
+
+    def test_submit_timecard_for_processing(self):
+        bootstrap = create_test_bootstrap()
+        message_bus = bootstrap.get_message_bus()
+
+        week_ending_date = common.create_datetime_from_iso("2022-08-26")
+        dates_and_hours = common.create_dates_and_hours()
+        timecard_id = common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013")
+
+        command = commands.CreateTimecard(
+            timecard_id,
+            common_model.EmployeeID("c8b5734f-e4b4-47c8-a326-f79c23e696de"),
+            week_ending_date=week_ending_date,
+            dates_and_hours=dates_and_hours
+
+        )
+        message_bus.handle(command)
+
+        command = commands.SubmitTimecardForProcessing(timecard_id)
+        message_bus.handle(command)
+
+        timecard = message_bus.unit_of_work.timecards.get(timecard_id)
+        assert timecard.submitted is True

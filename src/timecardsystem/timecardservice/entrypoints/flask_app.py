@@ -24,7 +24,7 @@ def create_dates_and_hours(dates_and_hours: Dict[str, List[float]]):
     return dates_and_hours_dto
 
 
-@app.route("/timecards", methods=["GET", "POST"])
+@app.route("/timecards", methods=["POST"])
 def create_timecard():
     timecard_id = request.json["timecard_id"]
     employee_id = request.json["employee_id"]
@@ -40,6 +40,20 @@ def create_timecard():
         common_model.EmployeeID(employee_id),
         week_ending_date,
         dates_and_hours_dto
+    )
+
+    bootstrap_script = Bootstrap()
+    bootstrap_script.initialize_app()
+    bus = bootstrap_script.get_message_bus()
+    bus.handle(command)
+
+    return "OK", 201
+
+@app.route("/timecards/submit", methods=["POST"])
+def submit_timecard_for_processing():
+    timecard_id = request.json["timecard_id"]
+    command = commands.SubmitTimecardForProcessing(
+        timecard_id=timecard_id
     )
 
     bootstrap_script = Bootstrap()

@@ -20,3 +20,14 @@ def create_timecard(
             )
         unit_of_work.timecards.add(timecard)
         unit_of_work.commit()
+
+def submit_timecard_for_processing(
+    command: commands.SubmitTimecardForProcessing,
+    unit_of_work: unit_of_work.AbstractUnitOfWork
+):
+    with unit_of_work:
+        timecard = unit_of_work.timecards.get(command.timecard_id)
+        if timecard:
+            timecard.submitted = True
+            unit_of_work.timecards.add(timecard)
+            unit_of_work.commit()
