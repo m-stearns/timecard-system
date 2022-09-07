@@ -29,7 +29,7 @@ EMPLOYEE_SCHEMA = {
     "name": {
         "type": "string",
         "required": True
-    } 
+    }
 }
 
 
