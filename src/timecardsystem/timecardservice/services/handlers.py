@@ -21,6 +21,7 @@ def create_timecard(
         unit_of_work.timecards.add(timecard)
         unit_of_work.commit()
 
+
 def submit_timecard_for_processing(
     command: commands.SubmitTimecardForProcessing,
     unit_of_work: unit_of_work.AbstractUnitOfWork
