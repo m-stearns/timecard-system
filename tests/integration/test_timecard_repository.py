@@ -44,9 +44,10 @@ def create_dates_and_hours() -> Dict[datetime, model.WorkDayHours]:
 week_ending_date = create_datetime_from_iso("2022-08-12")
 
 
-def test_get_timecard_by_id(timecards_collection):
+def test_get_timecard_by_id(mongodb_session_factory):
+    session = mongodb_session_factory()
     timecard_repository = \
-        repositories.MongoDBTimecardRepository(timecards_collection)
+        repositories.MongoDBTimecardRepository(session)
 
     timecard_id = common_model.TimecardID(
         "2437bf34-ef8a-4af2-8bd0-609d09cb4e5c"

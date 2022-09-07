@@ -28,29 +28,36 @@ class AbstractUnitOfWork(abc.ABC):
         raise NotImplementedError
 
 
-def create_default_database() -> pymongo.database.Database:
+def create_default_session() -> pymongo.database.Database:
     # starts up the database connection and sets any
     # schema restrictions for all collections.
     client = pymongo.MongoClient(config.get_mongodb_uri())
-    database = client[odm.DATABASE_NAME]
-    odm.startup_timecards_collection(database)
-    return database
+    odm.startup_timecards_collection(client)
+    return client.start_session
 
 
 class MongoDBUnitOfWork(AbstractUnitOfWork):
 
-    def __init__(self, database_factory=create_default_database) -> None:
-        self.database_factory = database_factory
+    def __init__(self, session_factory=create_default_session) -> None:
+        self.session_factory: pymongo.client_session.ClientSession = \
+            session_factory
 
     def __enter__(self):
-        self.database = self.database_factory()
+        self.session: pymongo.client_session.ClientSession = \
+            self.session_factory()
+        self.session.start_transaction()
         self.timecards = repositories.MongoDBTimecardRepository(
-            self.database[odm.COLLECTION_NAME]
+            self.session
         )
         return super().__enter__()
 
     def _commit(self):
-        pass
+        self.session.commit_transaction()
 
     def rollback(self):
-        pass
+        # pymongo raises an error if a successfully committed transaction
+        # is aborted; this is a workaround for the error.
+        try:
+            self.session.abort_transaction()
+        except pymongo.errors.InvalidOperation:
+            pass

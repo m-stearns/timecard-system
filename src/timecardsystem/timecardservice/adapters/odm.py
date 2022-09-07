@@ -46,7 +46,8 @@ def create_timecards_validator():
     return validator
 
 
-def startup_timecards_collection(database: pymongo.database.Database):
+def startup_timecards_collection(client):
+    database = client[DATABASE_NAME]
     # create schema
     validator = create_timecards_validator()
 

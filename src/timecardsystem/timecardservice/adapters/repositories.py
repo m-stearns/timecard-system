@@ -6,6 +6,7 @@ from decimal import Decimal
 import pymongo
 from timecardsystem.common.domain import model as common_model
 from timecardsystem.timecardservice.domain import model
+from timecardsystem.timecardservice.adapters import odm
 
 
 def create_dates_and_hours_dto(
@@ -72,9 +73,11 @@ class MongoDBTimecardRepository(AbstractTimecardRepository):
 
     def __init__(
         self,
-        timecards_collection: pymongo.collection.Collection
+        session: pymongo.client_session.ClientSession
     ) -> None:
-        self.timecards_collection = timecards_collection
+        self.session = session
+        self.database = session.client[odm.DATABASE_NAME]
+        self.timecards_collection = self.database[odm.COLLECTION_NAME]
 
     def _add(self, timecard: model.Timecard):
         dates_and_hours_dto = \
@@ -90,7 +93,8 @@ class MongoDBTimecardRepository(AbstractTimecardRepository):
         self.timecards_collection.replace_one(
             filter={"_id": timecard.id.value},
             replacement=timecard_dto,
-            upsert=True
+            upsert=True,
+            session=self.session
         )
 
     def _get(self, timecard_id: common_model.TimecardID) -> model.Timecard:
