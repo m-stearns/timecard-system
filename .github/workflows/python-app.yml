@@ -28,11 +28,19 @@ jobs:
       with:
         python-version: "3.8"
 
-    - name: Start MongoDB
+    - name: Start MongoDB Data Table
       uses: supercharge/mongodb-github-action@1.8.0
       with:
         mongodb-version: ${{ matrix.mongodb-version }}
         mongodb-port: 17017
+        mongodb-username: AzureDiamond
+        mongodb-password: hunter2
+
+    - name: Start MongoDB View Table
+      uses: supercharge/mongodb-github-action@1.8.0
+      with:
+        mongodb-version: ${{ matrix.mongodb-version }}
+        mongodb-port: 17018
         mongodb-username: AzureDiamond
         mongodb-password: hunter2
     
