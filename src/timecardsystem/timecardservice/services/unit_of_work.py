@@ -73,3 +73,26 @@ class MongoDBUnitOfWork(AbstractUnitOfWork):
             self.session.abort_transaction()
         except pymongo.errors.InvalidOperation:
             pass
+
+
+def create_default_view_session() -> pymongo.database.Database:
+    # starts up the client connection to the database
+    # schema restrictions for all collections.
+    client = pymongo.MongoClient(config.get_mongodb_view_uri())
+    return client.start_session()
+
+
+class MongoDBViewUnitOfWork(AbstractUnitOfWork):
+
+    def __init__(self, session_factory=create_default_view_session) -> None:
+        self.session_factory = session_factory
+
+    def __enter__(self):
+        self.session = self.session_factory()
+        return super().__enter__()
+
+    def _commit(self):
+        pass
+
+    def rollback(self):
+        pass
