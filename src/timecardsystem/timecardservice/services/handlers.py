@@ -1,4 +1,5 @@
-from timecardsystem.timecardservice.domain import commands, model
+from timecardsystem.timecardservice.domain import commands, model, events
+from timecardsystem.timecardservice.adapters import mongodb_view
 
 from . import unit_of_work
 
@@ -48,3 +49,28 @@ def submit_timecard_for_processing(
             timecard.submitted = True
             unit_of_work.timecards.add(timecard)
             unit_of_work.commit()
+
+
+def add_employee_to_view_model(event: events.EmployeeCreated):
+    mongodb_view.add_employee_to_view_model(
+        event.employee_id,
+        event.name
+    )
+
+
+def add_timecard_to_view_model(
+    event: events.TimecardCreated,
+    unit_of_work: unit_of_work.AbstractUnitOfWork
+):
+    with unit_of_work:
+        employee = unit_of_work.employees.get(event.employee_id)
+        if not employee:
+            raise Exception
+        
+        mongodb_view.add_timecard_to_view_model(
+            event.employee_id,
+            employee.name,
+            event.timecard_id,
+            event.week_ending_date,
+            event.dates_and_hours
+        )
