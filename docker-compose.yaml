@@ -10,12 +10,14 @@ services:
       - ./tests:/tests
     environment:
       - DB_HOST=mongodb_test
+      - DB_VIEW_HOST=mongodb_test_view
       - DB_PASSWORD=hunter2
       - FLASK_APP=timecardsystem/timecardservice/entrypoints/flask_app.py
       - FLASK_DEBUG=1
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
       - MONGODB_CONNSTRING=mongodb://AzureDiamond:hunter2@mongodb_test
+      - MONGODB_VIEW_CONNSTRING=mongodb://AzureDiamond:hunter2@mongodb_test_view
     entrypoint:
       - flask
       - run
@@ -32,3 +34,12 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=hunter2
     ports:
       - "17017:27017"
+
+  mongodb_test_view:
+    image: mongo:6.0
+    container_name: timecardservice_mongodb_test_view_c
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=AzureDiamond
+      - MONGO_INITDB_ROOT_PASSWORD=hunter2
+    ports:
+      - "17018:27017"
