@@ -86,7 +86,7 @@ class Timecard(common_model.AggregateRoot):
             self.id,
             self.employee_id,
             self.week_ending_date,
-            {date.isoformat(): hours.get_as_list_of_decimals()
+            {date: hours.get_as_list_of_decimals()
                 for date, hours in self._dates_and_hours.items()}
         )
         self.events.append(timecard_created_event)
