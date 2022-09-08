@@ -9,3 +9,11 @@ def get_mongodb_uri() -> str:
     password = os.environ.get("DB_PASSWORD", "hunter2")
     user_name = "AzureDiamond"
     return f"mongodb://{user_name}:{password}@{host}:{port}"
+
+
+def get_mongodb_view_uri() -> str:
+    host = os.environ.get("DB_VIEW_HOST", "localhost")
+    port = 17018 if host == "localhost" else 27017
+    password = os.environ.get("DB_PASSWORD", "hunter2")
+    user_name = "AzureDiamond"
+    return f"mongodb://{user_name}:{password}@{host}:{port}"
