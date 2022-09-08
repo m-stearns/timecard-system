@@ -43,7 +43,8 @@ def create_default_session() -> pymongo.database.Database:
     # schema restrictions for all collections.
     client = pymongo.MongoClient(config.get_mongodb_uri())
     odm.startup_timecards_collection(client)
-    return client.start_session
+    odm.startup_employees_collection(client)
+    return client.start_session()
 
 
 class MongoDBUnitOfWork(AbstractUnitOfWork):
@@ -52,8 +53,7 @@ class MongoDBUnitOfWork(AbstractUnitOfWork):
         self.session_factory = session_factory
 
     def __enter__(self):
-        self.session: pymongo.client_session.ClientSession = \
-            self.session_factory()
+        self.session = self.session_factory()
         self.session.start_transaction()
         self.timecards = repositories.MongoDBTimecardRepository(
             self.session
