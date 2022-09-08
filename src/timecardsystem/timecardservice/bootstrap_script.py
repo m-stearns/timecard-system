@@ -30,7 +30,9 @@ class Bootstrap:
         }
         self.injected_event_handlers = {
             events.TimecardCreated:
-            lambda e: handlers.add_timecard_to_view_model(e),
+            lambda e: handlers.add_timecard_to_view_model(
+                e, self.unit_of_work
+            ),
             events.EmployeeCreated:
             lambda e: handlers.add_employee_to_view_model(e)
         }
