@@ -66,7 +66,7 @@ def add_timecard_to_view_model(
         employee = unit_of_work.employees.get(event.employee_id)
         if not employee:
             raise Exception
-        
+
         mongodb_view.add_timecard_to_view_model(
             event.employee_id,
             employee.name,
