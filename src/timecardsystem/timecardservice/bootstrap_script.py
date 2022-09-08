@@ -8,7 +8,7 @@ class Bootstrap:
     def __init__(
         self,
         unit_of_work: unit_of_work.AbstractUnitOfWork =
-            unit_of_work.MongoDBUnitOfWork(),
+        unit_of_work.MongoDBUnitOfWork(),
         handle_side_effect_events: bool = True
     ):
         self.unit_of_work = unit_of_work
