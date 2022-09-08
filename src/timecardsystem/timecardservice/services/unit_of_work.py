@@ -19,7 +19,7 @@ class AbstractUnitOfWork(abc.ABC):
     def commit(self):
         self._commit()
 
-    def collect_new_events(self):
+    def collect_events(self):
         if self.timecards.seen:
             for timecard in self.timecards.seen:
                 while timecard.events:
