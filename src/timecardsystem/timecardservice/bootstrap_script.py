@@ -38,7 +38,7 @@ class Bootstrap:
         }
         self.initialized = True
 
-    def get_message_bus(self):
+    def get_message_bus(self) -> message_bus.MessageBus:
         if self.initialized:
             return message_bus.MessageBus(
                 self.unit_of_work,
