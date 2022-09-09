@@ -1,12 +1,12 @@
-from timecardsystem.common.domain import model as common_model
+from typing import Dict, List
 from timecardsystem.timecardservice.services import unit_of_work
 from timecardsystem.timecardservice.adapters import mongodb_view
 
 
 def timecards_for_employee(
-    employee_id: common_model.EmployeeID,
+    employee_id: str,
     unit_of_work: unit_of_work.MongoDBViewUnitOfWork
-):
+) -> List[Dict[str, str]]:
     cursor = []
     with unit_of_work:
         client = unit_of_work.session.client
@@ -15,6 +15,6 @@ def timecards_for_employee(
             mongodb_view.TIMECARDS_VIEW_COLLECTION_NAME
         ]
         cursor = timecards_view_c.find({
-            "employee_id": employee_id.value
+            "employee_id": employee_id
         })
         return [doc for doc in cursor]

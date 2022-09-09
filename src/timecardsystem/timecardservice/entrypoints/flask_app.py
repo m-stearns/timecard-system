@@ -2,10 +2,11 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Dict, List
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from timecardsystem.common.domain import model as common_model
 from timecardsystem.timecardservice.bootstrap_script import Bootstrap
 from timecardsystem.timecardservice.domain import commands, model
+from timecardsystem.timecardservice import views
 
 app = Flask(__name__)
 
@@ -22,6 +23,24 @@ def create_dates_and_hours(dates_and_hours: Dict[str, List[float]]):
         dates_and_hours_dto[date_obj] = work_day_hours
 
     return dates_and_hours_dto
+
+
+@app.route("/employees", methods=["GET", "POST"])
+def create_employee():
+    employee_id = request.json["employee_id"]
+    employee_name = request.json["name"]
+
+    command = commands.CreateEmployee(
+        common_model.EmployeeID(employee_id),
+        common_model.EmployeeName(employee_name)
+    )
+
+    bootstrapper = Bootstrap()
+    bootstrapper.initialize_app()
+    bus = bootstrapper.get_message_bus()
+    bus.handle(command)
+
+    return "OK", 201
 
 
 @app.route("/timecards", methods=["POST"])
@@ -42,9 +61,9 @@ def create_timecard():
         dates_and_hours_dto
     )
 
-    bootstrap_script = Bootstrap()
-    bootstrap_script.initialize_app()
-    bus = bootstrap_script.get_message_bus()
+    bootstrapper = Bootstrap()
+    bootstrapper.initialize_app()
+    bus = bootstrapper.get_message_bus()
     bus.handle(command)
 
     return "OK", 201
@@ -57,9 +76,17 @@ def submit_timecard_for_processing():
         timecard_id=timecard_id
     )
 
-    bootstrap_script = Bootstrap()
-    bootstrap_script.initialize_app()
-    bus = bootstrap_script.get_message_bus()
+    bootstrapper = Bootstrap()
+    bootstrapper.initialize_app()
+    bus = bootstrapper.get_message_bus()
     bus.handle(command)
 
-    return "OK", 201
+    return "OK", 200
+
+
+@app.route("/timecards/<employee_id>", methods=["GET"])
+def get_timecards_for_employee(employee_id: str):
+    results: List[Dict[str, str]] = views.timecards_for_employee(employee_id)
+    if not results:
+        return "not found", 404
+    return jsonify(results), 200
