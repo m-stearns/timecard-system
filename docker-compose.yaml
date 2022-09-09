@@ -9,6 +9,7 @@ services:
       - ./src:/src
       - ./tests:/tests
     environment:
+      - API_HOST=timecardservice
       - DB_HOST=mongodb_test
       - DB_VIEW_HOST=mongodb_test_view
       - DB_PASSWORD=hunter2

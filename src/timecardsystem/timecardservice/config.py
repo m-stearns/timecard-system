@@ -17,3 +17,9 @@ def get_mongodb_view_uri() -> str:
     password = os.environ.get("DB_PASSWORD", "hunter2")
     user_name = "AzureDiamond"
     return f"mongodb://{user_name}:{password}@{host}:{port}"
+
+
+def get_api_url():
+    host = os.environ.get("API_HOST", "localhost")
+    port = 5005 if host == "localhost" else 80
+    return f"http://{host}:{port}"

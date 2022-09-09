@@ -1,9 +1,12 @@
+import pathlib
+import time
+
 import pymongo
 import pytest
+import requests
 import tenacity
-
 from timecardsystem.timecardservice import config
-from timecardsystem.timecardservice.adapters import odm, mongodb_view
+from timecardsystem.timecardservice.adapters import mongodb_view, odm
 
 
 @pytest.fixture
@@ -56,3 +59,34 @@ def wait_for_mongodb_to_start_up(
     database_name: str
 ):
     return client[database_name]
+
+
+@tenacity.retry(stop=tenacity.stop_after_delay(10))
+def wait_for_api_to_be_available():
+    return requests.get(config.get_api_url())
+
+
+@pytest.fixture
+def restart_timecardservice_api():
+    (pathlib.Path(__file__).parent /
+        "../src/timecardsystem/timecardservice/entrypoints/flask_app.py").touch()
+    time.sleep(0.5)
+    wait_for_api_to_be_available()
+
+
+@pytest.fixture
+def setup_and_destroy_mongodb_data():
+    data_client = pymongo.MongoClient(config.get_mongodb_uri())
+    wait_for_mongodb_to_start_up(
+        data_client, odm.DATABASE_NAME
+    )
+
+    view_client = pymongo.MongoClient(config.get_mongodb_view_uri())
+    wait_for_mongodb_to_start_up(
+        view_client, mongodb_view.DATABASE_NAME
+    )
+    
+    yield
+    
+    data_client.drop_database(odm.DATABASE_NAME)
+    view_client.drop_database(mongodb_view.DATABASE_NAME)
