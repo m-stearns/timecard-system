@@ -10,38 +10,7 @@ from timecardsystem.timecardservice.services import message_bus, unit_of_work
 from timecardsystem.timecardservice.adapters import repositories, mongodb_view
 from timecardsystem.timecardservice import views
 
-def create_datetime_from_iso(date_ISO_format: str) -> datetime:
-    return datetime.fromisoformat(date_ISO_format)
-
-
-def create_dates_and_hours() -> Dict[datetime, model.WorkDayHours]:
-    return {
-        create_datetime_from_iso("2022-08-08"): model.WorkDayHours(
-            work_hours=Decimal("8.0"),
-            sick_hours=Decimal("0.0"),
-            vacation_hours=Decimal("0.0")
-        ),
-        create_datetime_from_iso("2022-08-09"): model.WorkDayHours(
-            work_hours=Decimal("8.0"),
-            sick_hours=Decimal("0.0"),
-            vacation_hours=Decimal("0.0")
-        ),
-        create_datetime_from_iso("2022-08-10"): model.WorkDayHours(
-            work_hours=Decimal("8.0"),
-            sick_hours=Decimal("0.0"),
-            vacation_hours=Decimal("0.0")
-        ),
-        create_datetime_from_iso("2022-08-11"): model.WorkDayHours(
-            work_hours=Decimal("8.0"),
-            sick_hours=Decimal("0.0"),
-            vacation_hours=Decimal("0.0")
-        ),
-        create_datetime_from_iso("2022-08-12"): model.WorkDayHours(
-            work_hours=Decimal("8.0"),
-            sick_hours=Decimal("0.0"),
-            vacation_hours=Decimal("0.0")
-        ),
-    }
+from ..common import create_datetime_from_iso, create_dates_and_hours
 
 
 class FakeTimecardRepository(repositories.AbstractTimecardRepository):
@@ -135,7 +104,7 @@ def test_timecard_view(
     test_message_bus.handle(command)
 
     rows = views.timecards_for_employee(
-        employee_id, mongodb_view_bus.unit_of_work
+        employee_id.value, mongodb_view_bus.unit_of_work
     )
     doc = rows[0]
     assert doc["employee_id"] == employee_id.value

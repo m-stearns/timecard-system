@@ -7,7 +7,7 @@ from timecardsystem.timecardservice.bootstrap_script import Bootstrap
 from timecardsystem.timecardservice.domain import commands, model
 from timecardsystem.timecardservice.services import unit_of_work
 
-import common
+from ..common import create_dates_and_hours, create_datetime_from_iso
 
 
 class FakeEmployeeRepository(repositories.AbstractEmployeeRepository):
@@ -70,8 +70,8 @@ class TestCreateTimecard:
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
-        week_ending_date = common.create_datetime_from_iso("2022-08-26")
-        dates_and_hours = common.create_dates_and_hours()
+        week_ending_date = create_datetime_from_iso("2022-08-26")
+        dates_and_hours = create_dates_and_hours()
 
         command = commands.CreateTimecard(
             common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013"),
@@ -94,8 +94,8 @@ class TestCreateTimecard:
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
-        week_ending_date = common.create_datetime_from_iso("2022-08-26")
-        dates_and_hours = common.create_dates_and_hours()
+        week_ending_date = create_datetime_from_iso("2022-08-26")
+        dates_and_hours = create_dates_and_hours()
 
         command_1 = commands.CreateTimecard(
             common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013"),
@@ -107,27 +107,27 @@ class TestCreateTimecard:
         message_bus.handle(command_1)
 
         changed_dates_and_hours = {
-            common.create_datetime_from_iso("2022-08-08"): model.WorkDayHours(
+            create_datetime_from_iso("2022-08-08"): model.WorkDayHours(
                 work_hours=Decimal("7.0"),
                 sick_hours=Decimal("1.0"),
                 vacation_hours=Decimal("0.0")
             ),
-            common.create_datetime_from_iso("2022-08-10"): model.WorkDayHours(
+            create_datetime_from_iso("2022-08-10"): model.WorkDayHours(
                 work_hours=Decimal("8.0"),
                 sick_hours=Decimal("0.0"),
                 vacation_hours=Decimal("0.0")
             ),
-            common.create_datetime_from_iso("2022-08-11"): model.WorkDayHours(
+            create_datetime_from_iso("2022-08-11"): model.WorkDayHours(
                 work_hours=Decimal("0.0"),
                 sick_hours=Decimal("0.0"),
                 vacation_hours=Decimal("8.0")
             ),
-            common.create_datetime_from_iso("2022-08-12"): model.WorkDayHours(
+            create_datetime_from_iso("2022-08-12"): model.WorkDayHours(
                 work_hours=Decimal("8.0"),
                 sick_hours=Decimal("0.0"),
                 vacation_hours=Decimal("0.0")
             ),
-            common.create_datetime_from_iso("2022-08-13"): model.WorkDayHours(
+            create_datetime_from_iso("2022-08-13"): model.WorkDayHours(
                 work_hours=Decimal("4.0"),
                 sick_hours=Decimal("4.0"),
                 vacation_hours=Decimal("0.0")
@@ -153,8 +153,8 @@ class TestSubmitTimecardForProcessing:
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
-        week_ending_date = common.create_datetime_from_iso("2022-08-26")
-        dates_and_hours = common.create_dates_and_hours()
+        week_ending_date = create_datetime_from_iso("2022-08-26")
+        dates_and_hours = create_dates_and_hours()
         timecard_id = common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013")
 
         command = commands.CreateTimecard(

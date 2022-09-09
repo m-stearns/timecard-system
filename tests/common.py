@@ -4,7 +4,6 @@ from typing import Dict
 
 from timecardsystem.timecardservice.domain import model
 
-
 def create_datetime_from_iso(date_ISO_format: str) -> datetime:
     return datetime.fromisoformat(date_ISO_format)
 
