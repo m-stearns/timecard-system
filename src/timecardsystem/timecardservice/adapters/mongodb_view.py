@@ -10,7 +10,7 @@ EMPLOYEES_VIEW_COLLECTION_NAME = "view_employees"
 TIMECARDS_VIEW_COLLECTION_NAME = "view_timecards"
 
 
-def connect_to_view_database():
+def _connect_to_view_database():
     client = pymongo.MongoClient(config.get_mongodb_view_uri())
     view_db = client[DATABASE_NAME]
     return view_db
@@ -31,7 +31,7 @@ def add_employee_to_view_model(
     employee_id: common_model.EmployeeID,
     employee_name: common_model.EmployeeName
 ):
-    view_db = connect_to_view_database()
+    view_db = _connect_to_view_database()
     employees_view_c = view_db[EMPLOYEES_VIEW_COLLECTION_NAME]
     row_data = {
         "_id": employee_id.value,
@@ -51,7 +51,7 @@ def add_timecard_to_view_model(
     week_ending_date: datetime,
     dates_and_hours: Dict[datetime, List[Decimal]]
 ):
-    view_db = connect_to_view_database()
+    view_db = _connect_to_view_database()
     timecards_view_c = view_db[TIMECARDS_VIEW_COLLECTION_NAME]
     row_data = {
         "employee_id": employee_id.value,
