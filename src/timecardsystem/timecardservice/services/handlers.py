@@ -1,3 +1,4 @@
+from typing import Callable
 from timecardsystem.timecardservice.domain import commands, model, events
 from timecardsystem.timecardservice.adapters import mongodb_view
 
@@ -74,3 +75,10 @@ def add_timecard_to_view_model(
             event.week_ending_date,
             event.dates_and_hours
         )
+
+
+def publish_employee_created_event(
+    event: events.EmployeeCreated,
+    publish_action: Callable
+):
+    publish_action("employee_created", event)
