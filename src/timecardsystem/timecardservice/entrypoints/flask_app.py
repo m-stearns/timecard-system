@@ -57,10 +57,10 @@ def create_timecard():
     bootstrapper = Bootstrap()
     bootstrapper.initialize_app()
     bus = bootstrapper.get_message_bus()
-    
+
     try:
         bus.handle(command)
-    except handlers.InvalidTimecard as err:
+    except (handlers.InvalidTimecard, handlers.EmployeeDoesNotExist) as err:
         return {"error": str(err)}, 400
 
     return "OK", 201

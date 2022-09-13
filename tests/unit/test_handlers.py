@@ -6,6 +6,7 @@ from timecardsystem.timecardservice.adapters import repositories
 from timecardsystem.timecardservice.bootstrap_script import Bootstrap
 from timecardsystem.timecardservice.domain import commands, model
 from timecardsystem.timecardservice.services import unit_of_work, handlers
+from timecardsystem.timecardservice.services.message_bus import MessageBus
 
 from ..common import (convert_dates_and_hours_to_domain,
                       create_dates_and_hours, create_datetime_from_iso)
@@ -67,16 +68,25 @@ def create_test_bootstrap():
     return bootstrap
 
 
+def inject_employee(employee_id: str, bus: MessageBus):
+    employee = model.Employee(
+        common_model.EmployeeID(employee_id),
+        common_model.EmployeeName("Azure Diamond")
+    )
+    bus.unit_of_work.employees.add(employee)
+
+
 class TestCreateTimecard:
     def test_create_timecard(self):
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
-        week_ending_date = create_datetime_from_iso("2022-08-12")
-        dates_and_hours = create_dates_and_hours()
+        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
+        inject_employee(employee_id, message_bus)
 
         timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
-        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
+        week_ending_date = create_datetime_from_iso("2022-08-12")
+        dates_and_hours = create_dates_and_hours()
 
         command = commands.CreateTimecard(
             timecard_id,
@@ -99,8 +109,10 @@ class TestCreateTimecard:
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
-        timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
         employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
+        inject_employee(employee_id, message_bus)
+
+        timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
         week_ending_date = create_datetime_from_iso("2022-08-12")
         dates_and_hours = create_dates_and_hours()
 
@@ -138,12 +150,13 @@ class TestCreateTimecard:
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
+        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
+        inject_employee(employee_id, message_bus)
+
+        timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
         week_ending_date = create_datetime_from_iso("2022-08-12")
         dates_and_hours = create_dates_and_hours()
         del dates_and_hours[create_datetime_from_iso("2022-08-12")]
-
-        timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
-        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
 
         command = commands.CreateTimecard(
             timecard_id,
@@ -152,13 +165,19 @@ class TestCreateTimecard:
             dates_and_hours=dates_and_hours
 
         )
-        with pytest.raises(handlers.InvalidTimecard, match=f"Invalid timecard {timecard_id}"):
+        with pytest.raises(
+            handlers.InvalidTimecard, match=f"Invalid timecard {timecard_id}"
+        ):
             message_bus.handle(command)
 
     def test_create_invalid_timecard_invalid_hours(self):
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
+        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
+        inject_employee(employee_id, message_bus)
+
+        timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
         week_ending_date = create_datetime_from_iso("2022-08-12")
         dates_and_hours = create_dates_and_hours()
         dates_and_hours[create_datetime_from_iso("2022-08-12")] = {
@@ -167,9 +186,6 @@ class TestCreateTimecard:
             "vacation_hours": "0.0"
         }
 
-        timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
-        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
-
         command = commands.CreateTimecard(
             timecard_id,
             employee_id,
@@ -177,7 +193,9 @@ class TestCreateTimecard:
             dates_and_hours=dates_and_hours
 
         )
-        with pytest.raises(handlers.InvalidTimecard, match=f"Invalid timecard {timecard_id}"):
+        with pytest.raises(
+            handlers.InvalidTimecard, match=f"Invalid timecard {timecard_id}"
+        ):
             message_bus.handle(command)
 
 
@@ -187,10 +205,12 @@ class TestSubmitTimecardForProcessing:
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
+        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
+        inject_employee(employee_id, message_bus)
+
+        timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
         week_ending_date = create_datetime_from_iso("2022-08-26")
         dates_and_hours = create_dates_and_hours()
-        timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
-        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
 
         command = commands.CreateTimecard(
             timecard_id,

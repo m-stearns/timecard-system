@@ -13,6 +13,10 @@ class InvalidTimecard(Exception):
     pass
 
 
+class EmployeeDoesNotExist(Exception):
+    pass
+
+
 def convert_dates_and_hours(
     dates_and_hours: Dict[datetime, Dict[str, str]]
 ) -> Dict[datetime, model.WorkDayHours]:
@@ -45,6 +49,13 @@ def create_timecard(
     unit_of_work: unit_of_work.AbstractUnitOfWork
 ):
     with unit_of_work:
+        employee = unit_of_work.employees.get(
+            common_model.EmployeeID(command.employee_id)
+        )
+        if not employee:
+            raise EmployeeDoesNotExist(
+                f"Employee ID {command.employee_id} does not exist"
+            )
         timecard = unit_of_work.timecards.get(
             common_model.TimecardID(command.timecard_id)
         )
