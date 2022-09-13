@@ -13,13 +13,17 @@ class MessageBus:
         unit_of_work: unit_of_work.AbstractUnitOfWork,
         command_handlers: Dict[Type[commands.Command], Callable],
         event_handlers: Dict[Type[events.Event], Callable],
-        handle_side_effect_events: bool = True
+        external_event_handlers: Dict[Type[events.Event], Callable],
+        publish_external_events: bool = True,
+        collect_side_effect_events: bool = True
     ) -> None:
         self.unit_of_work = unit_of_work
         self.command_handlers = command_handlers
         self.event_handlers = event_handlers
+        self.external_event_handlers = external_event_handlers
         self.queue = []
-        self.handle_side_effect_events = handle_side_effect_events
+        self.publish_external_events = publish_external_events
+        self.collect_side_effect_events = collect_side_effect_events
 
     def handle(self, message: Message):
         self.queue.append(message)
@@ -35,11 +39,14 @@ class MessageBus:
     def handle_command(self, command: commands.Command):
         handler = self.command_handlers[type(command)]
         handler(command)
-        if self.handle_side_effect_events:
+        if self.collect_side_effect_events:
             self.queue.extend(self.unit_of_work.collect_events())
 
     def handle_event(self, event: events.Event):
-        handler = self.event_handlers[type(event)]
-        handler(event)
-        if self.handle_side_effect_events:
-            self.queue.extend(self.unit_of_work.collect_events())
+        for handler in self.event_handlers[type(event)]:
+            handler(event)
+            if self.collect_side_effect_events:
+                self.queue.extend(self.unit_of_work.collect_events())
+        if self.publish_external_events:
+            for handler in self.external_event_handlers[type(event)]:
+                handler(event)

@@ -59,7 +59,8 @@ class FakeUnitOfWork(unit_of_work.AbstractUnitOfWork):
 def create_test_bootstrap():
     bootstrap = Bootstrap(
         unit_of_work=FakeUnitOfWork(),
-        handle_side_effect_events=False
+        collect_side_effect_events=False,
+        publish_external_events=False
     )
     bootstrap.initialize_app()
     return bootstrap

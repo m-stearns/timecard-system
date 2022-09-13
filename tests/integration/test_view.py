@@ -1,6 +1,5 @@
 from datetime import datetime
-from typing import Dict, Set
-from decimal import Decimal
+from typing import Set
 
 import pytest
 from timecardsystem.common.domain import model as common_model
@@ -10,7 +9,7 @@ from timecardsystem.timecardservice.services import message_bus, unit_of_work
 from timecardsystem.timecardservice.adapters import repositories, mongodb_view
 from timecardsystem.timecardservice import views
 
-from ..common import create_datetime_from_iso, create_dates_and_hours
+from ..common import create_dates_and_hours
 
 
 class FakeTimecardRepository(repositories.AbstractTimecardRepository):
@@ -61,7 +60,8 @@ class FakeUnitOfWork(unit_of_work.AbstractUnitOfWork):
 
 def create_test_bootstrap():
     bootstrap = bootstrap_script.Bootstrap(
-        unit_of_work=FakeUnitOfWork()
+        unit_of_work=FakeUnitOfWork(),
+        publish_external_events=False
     )
     bootstrap.initialize_app()
     return bootstrap
@@ -85,16 +85,18 @@ def test_timecard_view(
     test_bootstrap = create_test_bootstrap()
     test_message_bus = test_bootstrap.get_message_bus()
 
-    timecard_id = common_model.TimecardID("b7f35f7f-3f08-44b7-9d84-b0b28d7237ef")
-    employee_id = common_model.EmployeeID("88f67519-f5dc-4ba1-8dac-03e024ccd251")
+    timecard_id = \
+        common_model.TimecardID("b7f35f7f-3f08-44b7-9d84-b0b28d7237ef")
+    employee_id = \
+        common_model.EmployeeID("88f67519-f5dc-4ba1-8dac-03e024ccd251")
     employee_name = common_model.EmployeeName("Azure Diamond")
     week_ending_date = datetime.fromisoformat("2022-08-26")
     dates_and_hours_dto = create_dates_and_hours()
-    
+
     test_message_bus.unit_of_work.employees.add(
         model.Employee(employee_id, employee_name)
     )
-    
+
     command = commands.CreateTimecard(
         timecard_id,
         employee_id,
@@ -116,4 +118,3 @@ def test_timecard_view(
     assert "2022-08-10T00:00:00" in doc["dates_and_hours"]
     assert "2022-08-11T00:00:00" in doc["dates_and_hours"]
     assert "2022-08-12T00:00:00" in doc["dates_and_hours"]
-
