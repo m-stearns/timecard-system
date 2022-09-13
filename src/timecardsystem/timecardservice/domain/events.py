@@ -1,10 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
-from decimal import Decimal
-from typing import Dict, List
+from typing import Dict
 
 from timecardsystem.common.domain import events
-from timecardsystem.common.domain import model as common_model
 
 
 @dataclass
