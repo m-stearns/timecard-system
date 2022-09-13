@@ -81,7 +81,10 @@ class Timecard(common_model.AggregateRoot):
     def confirm_timecard_created(self):
         dates_and_hours_dto = {}
         for date, work_day_hours in self.dates_and_hours.items():
-            dates_and_hours_dto[date] = asdict(work_day_hours)
+            dates_and_hours_dto[date] = {
+                hours_type: str(num_of_hours)
+                for hours_type, num_of_hours in asdict(work_day_hours).items()
+            }
 
         timecard_created_event = domain_events.TimecardCreated(
             self.id.value,
