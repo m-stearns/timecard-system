@@ -1,6 +1,5 @@
 from datetime import datetime
-from decimal import Decimal
-from typing import Dict, List
+from typing import Dict
 
 import pymongo
 

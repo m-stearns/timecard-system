@@ -82,7 +82,7 @@ class Timecard(common_model.AggregateRoot):
         dates_and_hours_dto = {}
         for date, work_day_hours in self.dates_and_hours.items():
             dates_and_hours_dto[date] = asdict(work_day_hours)
-        
+
         timecard_created_event = domain_events.TimecardCreated(
             self.id.value,
             self.employee_id.value,
