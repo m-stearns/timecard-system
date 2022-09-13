@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from datetime import datetime
 from decimal import Decimal
 from typing import Dict, List
@@ -24,9 +24,6 @@ class WorkDayHours:
     def validate_work_day(self) -> bool:
         return self.total_hours >= MINIMUM_HOURS_PER_DAY
 
-    def get_as_list_of_decimals(self) -> List[Decimal]:
-        return [self.work_hours, self.sick_hours, self.vacation_hours]
-
 
 class Employee(common_model.AggregateRoot):
 
@@ -41,8 +38,8 @@ class Employee(common_model.AggregateRoot):
 
     def confirm_employee_created(self):
         employee_created_event = domain_events.EmployeeCreated(
-            self.id,
-            self.name
+            self.id.value,
+            self.name.value
         )
         self.events.append(employee_created_event)
 
@@ -82,12 +79,15 @@ class Timecard(common_model.AggregateRoot):
         return self.number_of_days_entered <= MAX_DAYS_IN_TIMECARD
 
     def confirm_timecard_created(self):
+        dates_and_hours_dto = {}
+        for date, work_day_hours in self.dates_and_hours.items():
+            dates_and_hours_dto[date] = asdict(work_day_hours)
+        
         timecard_created_event = domain_events.TimecardCreated(
-            self.id,
-            self.employee_id,
+            self.id.value,
+            self.employee_id.value,
             self.week_ending_date,
-            {date: hours.get_as_list_of_decimals()
-                for date, hours in self._dates_and_hours.items()}
+            dates_and_hours_dto
         )
         self.events.append(timecard_created_event)
 

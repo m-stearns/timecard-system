@@ -3,8 +3,6 @@ from datetime import datetime
 from typing import Dict
 
 from timecardsystem.common.domain import commands
-from timecardsystem.common.domain import model as common_model
-from timecardsystem.timecardservice.domain import model
 
 
 @dataclass
@@ -15,12 +13,12 @@ class CreateEmployee(commands.Command):
 
 @dataclass
 class CreateTimecard(commands.Command):
-    timecard_id: common_model.TimecardID
-    employee_id: common_model.EmployeeID
+    timecard_id: str
+    employee_id: str
     week_ending_date: datetime
-    dates_and_hours: Dict[datetime, model.WorkDayHours]
+    dates_and_hours: Dict[datetime, Dict[str, str]]
 
 
 @dataclass
 class SubmitTimecardForProcessing(commands.Command):
-    timecard_id: common_model.TimecardID
+    timecard_id: str

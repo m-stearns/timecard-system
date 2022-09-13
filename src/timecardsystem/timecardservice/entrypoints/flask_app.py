@@ -1,26 +1,19 @@
 from datetime import datetime
-from decimal import Decimal
 from typing import Dict, List
 
-from flask import Flask, request, jsonify
-from timecardsystem.common.domain import model as common_model
-from timecardsystem.timecardservice.bootstrap_script import Bootstrap
-from timecardsystem.timecardservice.domain import commands, model
+from flask import Flask, jsonify, request
 from timecardsystem.timecardservice import views
+from timecardsystem.timecardservice.bootstrap_script import Bootstrap
+from timecardsystem.timecardservice.domain import commands
 
 app = Flask(__name__)
 
 
-def create_dates_and_hours(dates_and_hours: Dict[str, List[float]]):
+def create_dates_and_hours(dates_and_hours: Dict[str, Dict[str, str]]):
     dates_and_hours_dto = {}
     for date_str, hours in dates_and_hours.items():
         date_obj = datetime.fromisoformat(date_str)
-        work_day_hours = model.WorkDayHours(
-            work_hours=Decimal(str(hours[0])),
-            sick_hours=Decimal(str(hours[1])),
-            vacation_hours=Decimal(str(hours[2])),
-        )
-        dates_and_hours_dto[date_obj] = work_day_hours
+        dates_and_hours_dto[date_obj] = hours
 
     return dates_and_hours_dto
 
@@ -54,8 +47,8 @@ def create_timecard():
     )
 
     command = commands.CreateTimecard(
-        common_model.TimecardID(timecard_id),
-        common_model.EmployeeID(employee_id),
+        timecard_id,
+        employee_id,
         week_ending_date,
         dates_and_hours_dto
     )

@@ -1,7 +1,10 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import Dict, List
+
 import pymongo
+
+from timecardsystem.timecardservice.domain import model
 from timecardsystem.common.domain import model as common_model
 from timecardsystem.timecardservice import config
 
@@ -17,12 +20,14 @@ def _connect_to_view_database():
 
 
 def _create_dates_and_hours_dto(
-    dates_and_hours: Dict[datetime, List[Decimal]]
+    dates_and_hours: Dict[datetime, model.WorkDayHours]
 ):
     dates_and_hours_dto = {}
-    for date, hours in dates_and_hours.items():
+    for date, work_day_hours in dates_and_hours.items():
         dates_and_hours_dto[date.isoformat()] = [
-            str(hour) for hour in hours
+            str(work_day_hours.work_hours),
+            str(work_day_hours.sick_hours),
+            str(work_day_hours.vacation_hours)
         ]
     return dates_and_hours_dto
 
@@ -49,7 +54,7 @@ def add_timecard_to_view_model(
     employee_name: common_model.EmployeeName,
     timecard_id: common_model.TimecardID,
     week_ending_date: datetime,
-    dates_and_hours: Dict[datetime, List[Decimal]]
+    dates_and_hours: Dict[datetime, model.WorkDayHours]
 ):
     view_db = _connect_to_view_database()
     timecards_view_c = view_db[TIMECARDS_VIEW_COLLECTION_NAME]

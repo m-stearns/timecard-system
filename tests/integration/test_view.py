@@ -85,16 +85,17 @@ def test_timecard_view(
     test_bootstrap = create_test_bootstrap()
     test_message_bus = test_bootstrap.get_message_bus()
 
-    timecard_id = \
-        common_model.TimecardID("b7f35f7f-3f08-44b7-9d84-b0b28d7237ef")
-    employee_id = \
-        common_model.EmployeeID("88f67519-f5dc-4ba1-8dac-03e024ccd251")
-    employee_name = common_model.EmployeeName("Azure Diamond")
+    timecard_id = "b7f35f7f-3f08-44b7-9d84-b0b28d7237ef"
+    employee_id = "88f67519-f5dc-4ba1-8dac-03e024ccd251"
+    employee_name = "Azure Diamond"
     week_ending_date = datetime.fromisoformat("2022-08-26")
     dates_and_hours_dto = create_dates_and_hours()
 
     test_message_bus.unit_of_work.employees.add(
-        model.Employee(employee_id, employee_name)
+        model.Employee(
+            common_model.EmployeeID(employee_id),
+            common_model.EmployeeName(employee_name)
+        )
     )
 
     command = commands.CreateTimecard(
@@ -106,12 +107,12 @@ def test_timecard_view(
     test_message_bus.handle(command)
 
     rows = views.timecards_for_employee(
-        employee_id.value, mongodb_view_bus.unit_of_work
+        employee_id, mongodb_view_bus.unit_of_work
     )
     doc = rows[0]
-    assert doc["employee_id"] == employee_id.value
-    assert doc["employee_name"] == employee_name.value
-    assert doc["timecard_id"] == timecard_id.value
+    assert doc["employee_id"] == employee_id
+    assert doc["employee_name"] == employee_name
+    assert doc["timecard_id"] == timecard_id
     assert doc["week_ending_date"] == week_ending_date
     assert "2022-08-08T00:00:00" in doc["dates_and_hours"]
     assert "2022-08-09T00:00:00" in doc["dates_and_hours"]

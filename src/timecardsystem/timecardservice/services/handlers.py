@@ -1,9 +1,25 @@
-from typing import Callable
-from timecardsystem.timecardservice.domain import commands, model, events
-from timecardsystem.timecardservice.adapters import mongodb_view
+from datetime import datetime
+from decimal import Decimal
+from typing import Callable, Dict
+
 from timecardsystem.common.domain import model as common_model
+from timecardsystem.timecardservice.adapters import mongodb_view
+from timecardsystem.timecardservice.domain import commands, events, model
 
 from . import unit_of_work
+
+
+def convert_dates_and_hours(
+    dates_and_hours: Dict[datetime, Dict[str, str]]
+) -> Dict[datetime, model.WorkDayHours]:
+    model_dates_and_hours = {}
+    for date, hours in dates_and_hours.items():
+        model_dates_and_hours[date] = model.WorkDayHours(
+            work_hours=Decimal(hours["work_hours"]),
+            sick_hours=Decimal(hours["sick_hours"]),
+            vacation_hours=Decimal(hours["vacation_hours"])
+        )
+    return model_dates_and_hours
 
 
 def create_employee(
@@ -25,15 +41,21 @@ def create_timecard(
     unit_of_work: unit_of_work.AbstractUnitOfWork
 ):
     with unit_of_work:
-        timecard = unit_of_work.timecards.get(command.timecard_id)
+        timecard = unit_of_work.timecards.get(
+            common_model.TimecardID(command.timecard_id)
+        )
         if timecard:
-            timecard.dates_and_hours = command.dates_and_hours
+            timecard.dates_and_hours = convert_dates_and_hours(
+                command.dates_and_hours
+            )
         else:
             timecard = model.Timecard(
-                command.timecard_id,
-                employee_id=command.employee_id,
+                common_model.TimecardID(command.timecard_id),
+                employee_id=common_model.EmployeeID(command.employee_id),
                 week_ending_date=command.week_ending_date,
-                dates_and_hours=command.dates_and_hours
+                dates_and_hours=convert_dates_and_hours(
+                    command.dates_and_hours
+                )
             )
         timecard.validate_timecard()
         unit_of_work.timecards.add(timecard)
@@ -46,7 +68,9 @@ def submit_timecard_for_processing(
     unit_of_work: unit_of_work.AbstractUnitOfWork
 ):
     with unit_of_work:
-        timecard = unit_of_work.timecards.get(command.timecard_id)
+        timecard = unit_of_work.timecards.get(
+            common_model.TimecardID(command.timecard_id)
+        )
         if timecard:
             timecard.submitted = True
             unit_of_work.timecards.add(timecard)
@@ -55,8 +79,8 @@ def submit_timecard_for_processing(
 
 def add_employee_to_view_model(event: events.EmployeeCreated):
     mongodb_view.add_employee_to_view_model(
-        event.employee_id,
-        event.name
+        common_model.EmployeeID(event.employee_id),
+        common_model.EmployeeName(event.name)
     )
 
 
@@ -65,16 +89,21 @@ def add_timecard_to_view_model(
     unit_of_work: unit_of_work.AbstractUnitOfWork
 ):
     with unit_of_work:
-        employee = unit_of_work.employees.get(event.employee_id)
+        employee = unit_of_work.employees.get(
+            common_model.EmployeeID(event.employee_id)
+        )
         if not employee:
             raise Exception
+        timecard = unit_of_work.timecards.get(
+            common_model.TimecardID(event.timecard_id)
+        )
 
         mongodb_view.add_timecard_to_view_model(
-            event.employee_id,
+            employee.id,
             employee.name,
-            event.timecard_id,
-            event.week_ending_date,
-            event.dates_and_hours
+            timecard.id,
+            timecard.week_ending_date,
+            timecard.dates_and_hours
         )
 
 
