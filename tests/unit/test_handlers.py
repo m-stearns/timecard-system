@@ -155,7 +155,8 @@ class TestSubmitTimecardForProcessing:
 
         week_ending_date = create_datetime_from_iso("2022-08-26")
         dates_and_hours = create_dates_and_hours()
-        timecard_id = common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013")
+        timecard_id = \
+            common_model.TimecardID("c5def653-5315-4a4d-b9dc-78beae7e3013")
 
         command = commands.CreateTimecard(
             timecard_id,
@@ -172,13 +173,15 @@ class TestSubmitTimecardForProcessing:
         timecard = message_bus.unit_of_work.timecards.get(timecard_id)
         assert timecard.submitted is True
 
+
 class TestCreateEmployee:
-    
+
     def test_create_employee(self):
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
-        employee_id = common_model.EmployeeID("c8b5734f-e4b4-47c8-a326-f79c23e696de")
+        employee_id = \
+            common_model.EmployeeID("c8b5734f-e4b4-47c8-a326-f79c23e696de")
         command = commands.CreateEmployee(
             employee_id,
             common_model.EmployeeName("Azure Diamond")
