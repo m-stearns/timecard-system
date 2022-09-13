@@ -5,6 +5,7 @@ from flask import Flask, jsonify, request
 from timecardsystem.timecardservice import views
 from timecardsystem.timecardservice.bootstrap_script import Bootstrap
 from timecardsystem.timecardservice.domain import commands
+from timecardsystem.timecardservice.services import handlers
 
 app = Flask(__name__)
 
@@ -56,7 +57,11 @@ def create_timecard():
     bootstrapper = Bootstrap()
     bootstrapper.initialize_app()
     bus = bootstrapper.get_message_bus()
-    bus.handle(command)
+    
+    try:
+        bus.handle(command)
+    except handlers.InvalidTimecard as err:
+        return {"error": str(err)}, 400
 
     return "OK", 201
 

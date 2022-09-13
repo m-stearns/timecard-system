@@ -1,13 +1,14 @@
 from typing import Set
 
+import pytest
 from timecardsystem.common.domain import model as common_model
 from timecardsystem.timecardservice.adapters import repositories
 from timecardsystem.timecardservice.bootstrap_script import Bootstrap
 from timecardsystem.timecardservice.domain import commands, model
-from timecardsystem.timecardservice.services import unit_of_work
+from timecardsystem.timecardservice.services import unit_of_work, handlers
 
-from ..common import (convert_dates_and_hours_to_domain, create_dates_and_hours,
-                      create_datetime_from_iso)
+from ..common import (convert_dates_and_hours_to_domain,
+                      create_dates_and_hours, create_datetime_from_iso)
 
 
 class FakeEmployeeRepository(repositories.AbstractEmployeeRepository):
@@ -132,6 +133,52 @@ class TestCreateTimecard:
         )
         assert timecard.dates_and_hours == \
             convert_dates_and_hours_to_domain(changed_dates_and_hours)
+
+    def test_create_invalid_timecard_missing_a_day(self):
+        bootstrap = create_test_bootstrap()
+        message_bus = bootstrap.get_message_bus()
+
+        week_ending_date = create_datetime_from_iso("2022-08-12")
+        dates_and_hours = create_dates_and_hours()
+        del dates_and_hours[create_datetime_from_iso("2022-08-12")]
+
+        timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
+        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
+
+        command = commands.CreateTimecard(
+            timecard_id,
+            employee_id,
+            week_ending_date=week_ending_date,
+            dates_and_hours=dates_and_hours
+
+        )
+        with pytest.raises(handlers.InvalidTimecard, match=f"Invalid timecard {timecard_id}"):
+            message_bus.handle(command)
+
+    def test_create_invalid_timecard_invalid_hours(self):
+        bootstrap = create_test_bootstrap()
+        message_bus = bootstrap.get_message_bus()
+
+        week_ending_date = create_datetime_from_iso("2022-08-12")
+        dates_and_hours = create_dates_and_hours()
+        dates_and_hours[create_datetime_from_iso("2022-08-12")] = {
+            "work_hours": "5.0",
+            "sick_hours": "0.0",
+            "vacation_hours": "0.0"
+        }
+
+        timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
+        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
+
+        command = commands.CreateTimecard(
+            timecard_id,
+            employee_id,
+            week_ending_date=week_ending_date,
+            dates_and_hours=dates_and_hours
+
+        )
+        with pytest.raises(handlers.InvalidTimecard, match=f"Invalid timecard {timecard_id}"):
+            message_bus.handle(command)
 
 
 class TestSubmitTimecardForProcessing:

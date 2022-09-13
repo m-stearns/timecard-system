@@ -9,6 +9,10 @@ from timecardsystem.timecardservice.domain import commands, events, model
 from . import unit_of_work
 
 
+class InvalidTimecard(Exception):
+    pass
+
+
 def convert_dates_and_hours(
     dates_and_hours: Dict[datetime, Dict[str, str]]
 ) -> Dict[datetime, model.WorkDayHours]:
@@ -57,7 +61,8 @@ def create_timecard(
                     command.dates_and_hours
                 )
             )
-        timecard.validate_timecard()
+        if not timecard.validate_timecard():
+            raise InvalidTimecard(f"Invalid timecard {timecard.id.value}")
         unit_of_work.timecards.add(timecard)
         timecard.confirm_timecard_created()
         unit_of_work.commit()
