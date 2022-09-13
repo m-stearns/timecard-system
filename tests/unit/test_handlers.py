@@ -206,11 +206,6 @@ class TestCreateTimecard:
         timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
         week_ending_date = create_datetime_from_iso("2022-08-12")
         dates_and_hours = create_dates_and_hours()
-        dates_and_hours[create_datetime_from_iso("2022-08-12")] = {
-            "work_hours": "5.0",
-            "sick_hours": "0.0",
-            "vacation_hours": "0.0"
-        }
 
         command = commands.CreateTimecard(
             timecard_id,
