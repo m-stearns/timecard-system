@@ -181,12 +181,13 @@ class TestCreateEmployee:
         bootstrap = create_test_bootstrap()
         message_bus = bootstrap.get_message_bus()
 
-        employee_id = \
-            common_model.EmployeeID("c8b5734f-e4b4-47c8-a326-f79c23e696de")
+        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
         command = commands.CreateEmployee(
             employee_id,
-            common_model.EmployeeName("Azure Diamond")
+            "Azure Diamond"
         )
         message_bus.handle(command)
-        employee = message_bus.unit_of_work.employees.get(employee_id)
-        assert employee.id == employee_id
+        employee = message_bus.unit_of_work.employees.get(
+            common_model.EmployeeID(employee_id)
+        )
+        assert employee.id.value == employee_id

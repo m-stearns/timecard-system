@@ -9,8 +9,8 @@ from timecardsystem.timecardservice.domain import model
 
 @dataclass
 class CreateEmployee(commands.Command):
-    employee_id: common_model.EmployeeID
-    name: common_model.EmployeeName
+    employee_id: str
+    name: str
 
 
 @dataclass

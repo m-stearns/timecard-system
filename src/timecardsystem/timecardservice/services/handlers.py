@@ -1,6 +1,7 @@
 from typing import Callable
 from timecardsystem.timecardservice.domain import commands, model, events
 from timecardsystem.timecardservice.adapters import mongodb_view
+from timecardsystem.common.domain import model as common_model
 
 from . import unit_of_work
 
@@ -11,8 +12,8 @@ def create_employee(
 ):
     with unit_of_work:
         employee = model.Employee(
-            command.employee_id,
-            command.name
+            common_model.EmployeeID(command.employee_id),
+            common_model.EmployeeName(command.name)
         )
         unit_of_work.employees.add(employee)
         employee.confirm_employee_created()

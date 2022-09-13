@@ -31,8 +31,7 @@ def create_employee():
     employee_name = request.json["name"]
 
     command = commands.CreateEmployee(
-        common_model.EmployeeID(employee_id),
-        common_model.EmployeeName(employee_name)
+        str(employee_id), str(employee_name)
     )
 
     bootstrapper = Bootstrap()
