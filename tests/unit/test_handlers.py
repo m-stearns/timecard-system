@@ -198,6 +198,33 @@ class TestCreateTimecard:
         ):
             message_bus.handle(command)
 
+    def test_create_timecard_no_injected_employee_raises_error(self):
+        bootstrap = create_test_bootstrap()
+        message_bus = bootstrap.get_message_bus()
+
+        employee_id = "c8b5734f-e4b4-47c8-a326-f79c23e696de"
+        timecard_id = "c5def653-5315-4a4d-b9dc-78beae7e3013"
+        week_ending_date = create_datetime_from_iso("2022-08-12")
+        dates_and_hours = create_dates_and_hours()
+        dates_and_hours[create_datetime_from_iso("2022-08-12")] = {
+            "work_hours": "5.0",
+            "sick_hours": "0.0",
+            "vacation_hours": "0.0"
+        }
+
+        command = commands.CreateTimecard(
+            timecard_id,
+            employee_id,
+            week_ending_date=week_ending_date,
+            dates_and_hours=dates_and_hours
+
+        )
+        with pytest.raises(
+            handlers.EmployeeDoesNotExist,
+            match=f"Employee ID {employee_id} does not exist"
+        ):
+            message_bus.handle(command)
+
 
 class TestSubmitTimecardForProcessing:
 
