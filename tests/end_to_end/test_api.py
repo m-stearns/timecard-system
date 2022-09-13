@@ -1,7 +1,6 @@
 import pytest
 import requests
 from timecardsystem.timecardservice import config
-from timecardsystem.timecardservice.adapters import odm, mongodb_view
 
 
 @pytest.mark.usefixtures("restart_timecardservice_api")
