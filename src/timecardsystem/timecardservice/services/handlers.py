@@ -17,7 +17,7 @@ class EmployeeDoesNotExist(Exception):
     pass
 
 
-def convert_dates_and_hours(
+def _convert_dates_and_hours(
     dates_and_hours: Dict[datetime, Dict[str, str]]
 ) -> Dict[datetime, model.WorkDayHours]:
     model_dates_and_hours = {}
@@ -60,7 +60,7 @@ def create_timecard(
             common_model.TimecardID(command.timecard_id)
         )
         if timecard:
-            timecard.dates_and_hours = convert_dates_and_hours(
+            timecard.dates_and_hours = _convert_dates_and_hours(
                 command.dates_and_hours
             )
         else:
@@ -68,7 +68,7 @@ def create_timecard(
                 common_model.TimecardID(command.timecard_id),
                 employee_id=common_model.EmployeeID(command.employee_id),
                 week_ending_date=command.week_ending_date,
-                dates_and_hours=convert_dates_and_hours(
+                dates_and_hours=_convert_dates_and_hours(
                     command.dates_and_hours
                 )
             )
@@ -109,7 +109,9 @@ def add_timecard_to_view_model(
             common_model.EmployeeID(event.employee_id)
         )
         if not employee:
-            raise Exception
+            raise EmployeeDoesNotExist(
+                f"Employee ID {event.employee_id} does not exist"
+            )
         timecard = unit_of_work.timecards.get(
             common_model.TimecardID(event.timecard_id)
         )
