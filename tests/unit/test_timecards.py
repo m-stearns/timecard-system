@@ -1,5 +1,3 @@
-import pytest
-
 from decimal import Decimal
 
 from timecardsystem.common.domain import model as common_model
@@ -94,16 +92,16 @@ def test_confirming_timecard_created_produces_timecard_created_event():
     timecard_id = "2437bf34-ef8a-4af2-8bd0-609d09cb4e5c"
     employee_id = "2142eb3a-2435-4ae0-a98b-7060c574f257"
     dates_and_hours_dto = create_dates_and_hours()
-    
+
     timecard = model.Timecard(
         common_model.TimecardID(timecard_id),
         common_model.EmployeeID(employee_id),
         week_ending_date,
         convert_dates_and_hours_to_domain(dates_and_hours_dto)
     )
-    
+
     timecard.confirm_timecard_created()
-    
+
     expected_event = events.TimecardCreated(
         timecard_id,
         employee_id,
@@ -117,7 +115,7 @@ def test_validate_timecard_call_is_valid():
     timecard_id = "2437bf34-ef8a-4af2-8bd0-609d09cb4e5c"
     employee_id = "2142eb3a-2435-4ae0-a98b-7060c574f257"
     dates_and_hours_dto = create_dates_and_hours()
-    
+
     timecard = model.Timecard(
         common_model.TimecardID(timecard_id),
         common_model.EmployeeID(employee_id),
@@ -133,7 +131,7 @@ def test_validate_timecard_invalid_number_of_days():
     employee_id = "2142eb3a-2435-4ae0-a98b-7060c574f257"
     dates_and_hours_dto = create_dates_and_hours()
     del dates_and_hours_dto[create_datetime_from_iso("2022-08-08")]
-    
+
     timecard = model.Timecard(
         common_model.TimecardID(timecard_id),
         common_model.EmployeeID(employee_id),
@@ -153,7 +151,7 @@ def test_validate_timecard_invalid_total_hours():
         "sick_hours": "0.0",
         "vacation_hours": "0.0"
     }
-    
+
     timecard = model.Timecard(
         common_model.TimecardID(timecard_id),
         common_model.EmployeeID(employee_id),
