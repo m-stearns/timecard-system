@@ -67,11 +67,8 @@ class Timecard(common_model.AggregateRoot):
         self.events: List[events.Event] = []
 
     def validate_timecard(self) -> bool:
-        if not self._validate_total_hours():
-            raise Exception
-        if not self._validate_number_of_days_entered():
-            raise Exception
-        return True
+        return self._validate_number_of_days_entered() \
+            and self._validate_total_hours()
 
     def _validate_total_hours(self):
         return self.total_hours_in_week >= MINIMUM_HOURS_PER_WEEK

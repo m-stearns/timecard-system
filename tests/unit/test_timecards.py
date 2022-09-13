@@ -1,10 +1,12 @@
+import pytest
+
 from decimal import Decimal
 
 from timecardsystem.common.domain import model as common_model
 from timecardsystem.timecardservice.domain import events, model
 
-from ..common import (convert_dates_and_hours_to_domain, create_dates_and_hours,
-                      create_datetime_from_iso)
+from ..common import (convert_dates_and_hours_to_domain,
+                      create_dates_and_hours, create_datetime_from_iso)
 
 week_ending_date = create_datetime_from_iso("2022-08-12")
 
@@ -68,7 +70,9 @@ def test_validate_number_of_days_entered_valid():
 
 
 def test_validate_number_of_days_entered_invalid():
-    dates_and_hours = convert_dates_and_hours_to_domain(create_dates_and_hours())
+    dates_and_hours = convert_dates_and_hours_to_domain(
+        create_dates_and_hours()
+    )
 
     dates_and_hours[create_datetime_from_iso("2022-08-13")] = \
         model.WorkDayHours(Decimal("8.0"), Decimal("0.0"), Decimal("0.0"))
@@ -108,6 +112,7 @@ def test_confirming_timecard_created_produces_timecard_created_event():
     )
     assert timecard.events[-1] == expected_event
 
+
 def test_validate_timecard_call_is_valid():
     timecard_id = "2437bf34-ef8a-4af2-8bd0-609d09cb4e5c"
     employee_id = "2142eb3a-2435-4ae0-a98b-7060c574f257"
@@ -121,3 +126,39 @@ def test_validate_timecard_call_is_valid():
     )
 
     assert timecard.validate_timecard()
+
+
+def test_validate_timecard_invalid_number_of_days():
+    timecard_id = "2437bf34-ef8a-4af2-8bd0-609d09cb4e5c"
+    employee_id = "2142eb3a-2435-4ae0-a98b-7060c574f257"
+    dates_and_hours_dto = create_dates_and_hours()
+    del dates_and_hours_dto[create_datetime_from_iso("2022-08-08")]
+    
+    timecard = model.Timecard(
+        common_model.TimecardID(timecard_id),
+        common_model.EmployeeID(employee_id),
+        week_ending_date,
+        convert_dates_and_hours_to_domain(dates_and_hours_dto)
+    )
+
+    assert timecard.validate_timecard() is False
+
+
+def test_validate_timecard_invalid_total_hours():
+    timecard_id = "2437bf34-ef8a-4af2-8bd0-609d09cb4e5c"
+    employee_id = "2142eb3a-2435-4ae0-a98b-7060c574f257"
+    dates_and_hours_dto = create_dates_and_hours()
+    dates_and_hours_dto[create_datetime_from_iso("2022-08-08")] = {
+        "work_hours": "5.0",
+        "sick_hours": "0.0",
+        "vacation_hours": "0.0"
+    }
+    
+    timecard = model.Timecard(
+        common_model.TimecardID(timecard_id),
+        common_model.EmployeeID(employee_id),
+        week_ending_date,
+        convert_dates_and_hours_to_domain(dates_and_hours_dto)
+    )
+
+    assert timecard.validate_timecard() is False
