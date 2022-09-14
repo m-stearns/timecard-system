@@ -85,8 +85,6 @@ def setup_and_destroy_mongodb_data():
     wait_for_mongodb_to_start_up(
         view_client, mongodb_view.DATABASE_NAME
     )
-    
     yield
-    
     data_client.drop_database(odm.DATABASE_NAME)
     view_client.drop_database(mongodb_view.DATABASE_NAME)
