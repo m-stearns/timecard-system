@@ -130,3 +130,10 @@ def publish_employee_created_event(
     publish_action: Callable
 ):
     publish_action("employee_created", event)
+
+
+def publish_timecard_created_event(
+    event: events.TimecardCreated,
+    publish_action: Callable
+):
+    publish_action("timecard_created", event)

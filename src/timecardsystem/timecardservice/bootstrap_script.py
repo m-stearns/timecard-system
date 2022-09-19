@@ -54,6 +54,12 @@ class Bootstrap:
                     publish_action=self.publisher.publish_event
                 ),
             ],
+            events.TimecardCreated: [
+                lambda e: handlers.publish_timecard_created_event(
+                    event=e,
+                    publish_action=self.publisher.publish_event
+                )
+            ]
         }
 
         self.initialized = True
