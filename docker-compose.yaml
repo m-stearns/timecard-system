@@ -5,6 +5,10 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: timecardservice_c
+    depends_on:
+      - rabbitmq
+      - mongodb_test
+      - mongodb_test_view
     volumes:
       - ./src:/src
       - ./tests:/tests
@@ -19,6 +23,7 @@ services:
       - PYTHONDONTWRITEBYTECODE=1
       - MONGODB_CONNSTRING=mongodb://AzureDiamond:hunter2@mongodb_test
       - MONGODB_VIEW_CONNSTRING=mongodb://AzureDiamond:hunter2@mongodb_test_view
+      - RABBIT_MQ_HOST=rabbitmq
     entrypoint:
       - flask
       - run
@@ -44,3 +49,10 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=hunter2
     ports:
       - "17018:27017"
+
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: rabbitmq_test_c
+    ports:
+      - 6672:5672
+      - 16672:15672
