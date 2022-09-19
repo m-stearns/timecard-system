@@ -29,14 +29,12 @@ class MessageBus:
         self.queue.append(message)
         while self.queue:
             message = self.queue.pop(0)
-            print(message)
             if isinstance(message, commands.Command):
                 self.handle_command(message)
             elif isinstance(message, events.Event):
                 self.handle_event(message)
             else:
                 raise Exception(f"{message} is not an Event or Command!")
-            print(f"HANDLED: {message}")
 
     def handle_command(self, command: commands.Command):
         handler = self.command_handlers[type(command)]
