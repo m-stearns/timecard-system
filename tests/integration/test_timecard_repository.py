@@ -2,8 +2,8 @@ from timecardsystem.common.domain import model as common_model
 from timecardsystem.timecardservice.adapters import repositories
 from timecardsystem.timecardservice.domain import model
 
-from ..common import (convert_dates_and_hours_to_domain, create_dates_and_hours,
-                      create_datetime_from_iso)
+from ..common import (convert_dates_and_hours_to_domain,
+                      create_dates_and_hours, create_datetime_from_iso)
 
 week_ending_date = create_datetime_from_iso("2022-08-12")
 
