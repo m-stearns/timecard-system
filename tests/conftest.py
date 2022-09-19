@@ -1,6 +1,7 @@
 import pathlib
 import time
 
+import pika
 import pymongo
 import pytest
 import requests
@@ -68,10 +69,10 @@ def wait_for_api_to_be_available():
 
 @pytest.fixture
 def restart_timecardservice_api():
-    (pathlib.Path(__file__).parent /
-        "../src/timecardsystem/timecardservice/entrypoints/flask_app.py").touch()
-    time.sleep(0.5)
+    app_path = "../src/timecardsystem/timecardservice/entrypoints/flask_app.py"
+    (pathlib.Path(__file__).parent / app_path).touch()
     wait_for_api_to_be_available()
+    time.sleep(1)
 
 
 @pytest.fixture
@@ -88,3 +89,57 @@ def setup_and_destroy_mongodb_data():
     yield
     data_client.drop_database(odm.DATABASE_NAME)
     view_client.drop_database(mongodb_view.DATABASE_NAME)
+
+
+@pytest.fixture
+def purge_rabbitmq_queue():
+    HOST, PORT = config.get_rabbitmq_host_and_port()
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(
+            host=HOST,
+            port=PORT
+        )
+    )
+    channel = connection.channel()
+
+    channel.queue_declare(
+        queue="test",
+        durable=True,
+        exclusive=False,
+        auto_delete=False
+    )
+
+    channel.queue_purge("test")
+    channel.close()
+    connection.close()
+    del connection
+
+    yield
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(
+            host=HOST, port=PORT
+        )
+    )
+    channel = connection.channel()
+    channel.queue_purge("test")
+    channel.close()
+    connection.close()
+    del connection
+
+
+@tenacity.retry(stop=tenacity.stop_after_delay(15))
+def wait_for_rabbitmq_to_start_up():
+    HOST, PORT = config.get_rabbitmq_host_and_port()
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(
+            host=HOST,
+            port=PORT
+        )
+    )
+    connection.close()
+    del connection
+
+
+@pytest.fixture
+def start_up_rabbitmq():
+    wait_for_rabbitmq_to_start_up()
