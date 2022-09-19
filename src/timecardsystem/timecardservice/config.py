@@ -23,3 +23,9 @@ def get_api_url():
     host = os.environ.get("API_HOST", "localhost")
     port = 5005 if host == "localhost" else 80
     return f"http://{host}:{port}"
+
+
+def get_rabbitmq_host_and_port():
+    host = os.environ.get("RABBIT_MQ_HOST", "localhost")
+    port = 6672 if host == "localhost" else 5672
+    return host, port
