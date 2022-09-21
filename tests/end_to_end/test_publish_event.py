@@ -200,12 +200,8 @@ def test_submit_timecard_command_creates_timecard_submitted_event(
     )
     assert response.status_code == 201
 
-    payload = {
-        "timecard_id": timecard_id
-    }
-
     response = requests.post(
-        f"{api_url}/timecards/submit", json=payload
+        f"{api_url}/timecards/{timecard_id}/submit"
     )
     assert response.status_code == 200
 
