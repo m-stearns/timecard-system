@@ -81,7 +81,7 @@ def submit_timecard_for_processing():
     return "OK", 200
 
 
-@app.route("/timecards/<employee_id>", methods=["GET"])
+@app.route("/employees/<employee_id>/timecards", methods=["GET"])
 def get_timecards_for_employee(employee_id: str):
     results: List[Dict[str, str]] = views.timecards_for_employee(employee_id)
     if not results:
