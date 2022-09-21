@@ -17,3 +17,9 @@ class TimecardCreated(events.Event):
     employee_id: str
     week_ending_date: datetime
     dates_and_hours: Dict[datetime, Dict[str, str]]
+
+
+@dataclass
+class TimecardSubmittedForProcessing(events.Event):
+    timecard_id: str
+    employee_id: str

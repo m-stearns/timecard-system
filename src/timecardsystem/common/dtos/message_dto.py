@@ -59,6 +59,9 @@ class MessagePublisherDTO:
                 temp["dates_and_hours"]
             )
             self._serialized_message = self._serialize_func(temp)
+        elif message.__class__.__name__ == "TimecardSubmittedForProcessing":
+            temp = asdict(message)
+            self._serialized_message = self._serialize_func(temp)
 
     @property
     def serialized_message(self) -> bytes:
@@ -73,7 +76,11 @@ class MessageConsumerDTO:
 
     def __init__(self) -> None:
         self._whitelisted_events: Set = \
-            set({"EmployeeCreated", "TimecardCreated"})
+            set({
+                "EmployeeCreated",
+                "TimecardCreated",
+                "TimecardSubmittedForProcessing"
+            })
         self._deserialize_func: Callable = None
         self._deserialized_messages: List[common_events.Event] = []
         self._app_callback: Callable = None
@@ -129,6 +136,12 @@ class MessageConsumerDTO:
                 common_model.EmployeeID(temp["employee_id"]),
                 datetime.fromisoformat(temp["week_ending_date"]),
                 convert_dates_and_hours_to_domain(temp["dates_and_hours"])
+            )
+            self._deserialized_messages.append(event)
+        elif header.content_type == "TimecardSubmittedForProcessing":
+            event = events.TimecardSubmittedForProcessing(
+                common_model.TimecardID(temp["timecard_id"]),
+                common_model.EmployeeID(temp["employee_id"])
             )
             self._deserialized_messages.append(event)
 

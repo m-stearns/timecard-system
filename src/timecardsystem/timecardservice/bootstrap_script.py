@@ -59,6 +59,12 @@ class Bootstrap:
                     event=e,
                     publish_action=self.publisher.publish_event
                 )
+            ],
+            events.TimecardSubmittedForProcessing: [
+                lambda e: handlers.publish_timecard_submitted_event(
+                    event=e,
+                    publish_action=self.publisher.publish_event
+                )
             ]
         }
 

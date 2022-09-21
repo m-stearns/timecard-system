@@ -63,7 +63,7 @@ class Timecard(common_model.AggregateRoot):
             for work_day_hours in self._dates_and_hours.values()
         ])
         self.number_of_days_entered: int = len(dates_and_hours)
-        self.submitted = submitted
+        self._submitted = submitted
         self.events: List[events.Event] = []
 
     def validate_timecard(self) -> bool:
@@ -102,3 +102,17 @@ class Timecard(common_model.AggregateRoot):
         new_dates_and_hours: Dict[datetime, WorkDayHours]
     ):
         self._dates_and_hours = new_dates_and_hours
+
+    @property
+    def submitted(self) -> bool:
+        return self._submitted
+
+    @submitted.setter
+    def submitted(self, status: bool):
+        self._submitted = status
+        timecard_submitted_event = \
+            domain_events.TimecardSubmittedForProcessing(
+                self.id.value,
+                self.employee_id.value
+            )
+        self.events.append(timecard_submitted_event)

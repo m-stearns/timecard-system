@@ -17,6 +17,10 @@ class EmployeeDoesNotExist(Exception):
     pass
 
 
+class TimecardDoesNotExist(Exception):
+    pass
+
+
 def _convert_dates_and_hours(
     dates_and_hours: Dict[datetime, Dict[str, str]]
 ) -> Dict[datetime, model.WorkDayHours]:
@@ -91,6 +95,10 @@ def submit_timecard_for_processing(
             timecard.submitted = True
             unit_of_work.timecards.add(timecard)
             unit_of_work.commit()
+        else:
+            raise TimecardDoesNotExist(
+                f"Timecard does not exist: {command.timecard_id}"
+            )
 
 
 def add_employee_to_view_model(event: events.EmployeeCreated):
@@ -137,3 +145,10 @@ def publish_timecard_created_event(
     publish_action: Callable
 ):
     publish_action("timecard_created", event)
+
+
+def publish_timecard_submitted_event(
+    event: events.TimecardSubmittedForProcessing,
+    publish_action: Callable
+):
+    publish_action("timecard_submitted", event)
