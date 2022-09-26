@@ -136,7 +136,7 @@ Finally when there are no more updates to a specific timecard, the timecard can 
 }
 ```
 
-To view all timecards for a specific employee, use the `GET /employees/{employee_id}/timecards` endpoint by providing the Employee ID as a query parameter in UUID4 format. Upon a successful request a `200 OK` status will be returned along with a list of the employee's timecards in JSON format.
+To view all timecards for a specific employee, use the `GET /employees/{employee_id}/timecards` endpoint by providing the Employee ID as a URL parameter in UUID4 format. Upon a successful request a `200 OK` status will be returned along with a list of the employee's timecards in JSON format.
 
 ```
 [
