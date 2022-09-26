@@ -128,13 +128,7 @@ See below for an example of an HTTP `POST` request to `/timecards`:
 
 You can continue to alter the values of a specific timecard by continuing to make `POST` requests to `/timecards` with a specific Timecard ID in UUID4 format.
 
-Finally when there are no more updates to a specific timecard, the timecard can be submitted for payment via `POST /timecards/{timecard_id}/submit` and providing the timecard's ID UUID4 value within a JSON body.
-
-```
-{
-  "timecard_id": "2437bf34-ef8a-4af2-8bd0-609d09cb4e5c"
-}
-```
+Finally when there are no more updates to a specific timecard, the timecard can be submitted for payment via `POST /timecards/{timecard_id}/submit` and providing the timecard's UUID4 format ID as a Query parameter.
 
 To view all timecards for a specific employee, use the `GET /employees/{employee_id}/timecards` endpoint by providing the Employee ID as a URL parameter in UUID4 format. Upon a successful request a `200 OK` status will be returned along with a list of the employee's timecards in JSON format.
 
