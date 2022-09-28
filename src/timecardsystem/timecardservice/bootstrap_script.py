@@ -5,6 +5,14 @@ from timecardsystem.timecardservice.services import (handlers, message_bus,
                                                      unit_of_work)
 
 
+class BootstrapNotInitialized(Exception):
+    pass
+
+
+# Code modified from function bootstrap obtained from
+# https://github.com/cosmicpython/code/blob/master/src/allocation/bootstrap.py
+
+
 class Bootstrap:
 
     def __init__(
@@ -81,4 +89,4 @@ class Bootstrap:
                 self.collect_side_effect_events
             )
         else:
-            raise Exception
+            raise BootstrapNotInitialized
