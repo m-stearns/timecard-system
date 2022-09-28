@@ -5,6 +5,9 @@ from timecardsystem.timecardservice.adapters import repositories
 from timecardsystem.timecardservice import config
 from timecardsystem.timecardservice.adapters import odm
 
+# Code modified from class AbstractUnitOfWork obtained from
+# https://github.com/cosmicpython/code/blob/master/src/allocation/service_layer/unit_of_work.py
+
 
 class AbstractUnitOfWork(abc.ABC):
     employees: repositories.AbstractEmployeeRepository
