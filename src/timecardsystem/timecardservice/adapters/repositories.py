@@ -21,6 +21,9 @@ def create_dates_and_hours_dto(
         ]
     return dates_and_hours_dto
 
+# Code modified from class AbstractRepository obtained from
+# https://github.com/cosmicpython/code/blob/master/src/allocation/adapters/repository.py
+
 
 class AbstractRepository(abc.ABC):
 
