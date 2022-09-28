@@ -5,6 +5,9 @@ from timecardsystem.timecardservice.services import unit_of_work
 
 Message = Union[commands.Command, events.Event]
 
+# Code modified from class MessageBus obtained from
+# https://github.com/cosmicpython/code/blob/master/src/allocation/service_layer/messagebus.py
+
 
 class MessageBus:
 
